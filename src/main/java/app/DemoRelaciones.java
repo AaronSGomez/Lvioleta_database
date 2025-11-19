@@ -1,5 +1,4 @@
 package app;
-
 import model.*;
 
 import java.time.LocalDate;
@@ -12,6 +11,8 @@ import java.time.LocalDate;
  */
 public class DemoRelaciones {
     public static void main(String[] args) {
+
+
         // --- 1:1 Cliente ↔ DetalleCliente
         Cliente cli = new Cliente(1, "Ana Pérez", "ana@example.com");
         DetalleCliente det = new DetalleCliente(1, "C/ Sol 3", "600111222", "VIP");
