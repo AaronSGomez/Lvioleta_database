@@ -189,7 +189,7 @@ public class ClientesView {
             recargarDatos();
         });
 
-        btnBuscar.setOnAction(e -> buscarClientesEnMemoria());
+        btnBuscar.setOnAction(e -> buscarClientesEnBBDD());
 
         btnLimpiarBusqueda.setOnAction(e -> {
             txtBuscar.clear();
@@ -244,6 +244,23 @@ public class ClientesView {
             mostrarError("Error al buscar clientes", e);
         }
     }
+
+    private void buscarClientesEnBBDD() {
+        String filtro = txtBuscar.getText().trim();
+        if(filtro.isEmpty()) {
+            recargarDatos();
+            return;
+        }
+        try {
+            List<Cliente> lista = clienteDAO.search(filtro);
+            datos.setAll(lista);
+
+        }catch (SQLException e){
+            mostrarError("Error al buscar", e);
+        }
+
+    }
+
 
     private void limpiarFormulario() {
         txtId.clear();
