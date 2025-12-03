@@ -21,7 +21,7 @@ public class ProductoDAO {
         try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(INSERT_SQL)){
             ps.setInt(1, producto.getId());
             ps.setString(2, producto.getNombre());
-            ps.setString(3, ""+producto.getPrecio());
+            ps.setDouble(3, producto.getPrecio());
             ps.executeUpdate();
         }
     }

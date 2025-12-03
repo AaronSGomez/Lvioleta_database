@@ -1,5 +1,6 @@
 package app;
 import dao.ClienteDAO;
+import dao.ProductoDAO;
 import model.*;
 
 import java.sql.SQLException;
@@ -15,9 +16,12 @@ public class DemoRelaciones {
     public static void main(String[] args) {
         try {
             ClienteDAO clienteDAO = new ClienteDAO();
-            cargarDeDatos(clienteDAO);
+            ProductoDAO productoDAO = new ProductoDAO();
+            //cargarDeDatos(clienteDAO);
+            //mostrarDatos(clienteDAO);
 
-            mostrarDatos(clienteDAO);
+            cargarDeDatosPro(productoDAO);
+            mostrarDatosPro(productoDAO);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -40,6 +44,23 @@ public class DemoRelaciones {
         List<Cliente> clientes = cdao.findAll();
         //clientes.forEach(c -> System.out.println(c));
          clientes.forEach(System.out::println);
+    }
+
+    private static void cargarDeDatosPro(ProductoDAO productoDAO) throws SQLException {
+        System.out.println("=== Cargando datos ===");
+        Producto p1 = new Producto(1,"Logitech ERGO M575S", 37.99);
+        Producto p2 = new Producto(2, "PERIBOARD-335BL", 46.99);
+
+        productoDAO.insert(p1);
+        productoDAO.insert(p2);
+        System.out.println("=== Datos cargado correctamente ===");
+    }
+
+    private static void mostrarDatosPro(ProductoDAO pdao) throws SQLException {
+        System.out.println("=== Mostrando datos ===");
+        List<Producto> productos = pdao.findAll();
+        //clientes.forEach(c -> System.out.println(c));
+        productos.forEach(System.out::println);
     }
 
 

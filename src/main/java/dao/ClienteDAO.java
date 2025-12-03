@@ -1,54 +1,152 @@
 package dao;
+// Paquete donde vive esta clase. Normalmente 'dao' agrupa los Data Access Objects,
+// clases dedicadas exclusivamente a hablar con la base de datos.
 
 import db.Db;
+// Clase que gestiona la obtención de conexiones JDBC (probablemente un método estático getConnection()).
+
 import model.Cliente;
+// Modelo/entidad Cliente. Representa una fila de la tabla 'cliente'.
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+// Imports necesarios para el uso del API JDBC de Java.
+
 import java.util.ArrayList;
 import java.util.List;
+// Usamos listas dinámicas para devolver varios clientes cuando hacemos un SELECT *.
 
 public class ClienteDAO {
+    // Clase DAO que contiene la lógica de acceso a datos para la entidad Cliente.
+    // Todo lo relacionado con INSERT, SELECT, UPDATE y DELETE de clientes se pone aquí.
 
-    private static final String INSERT_SQL ="INSERT INTO pedido (id, cliente_id, fecha) VALUES (?, ?, ?)";
+    // ----------------------------------------------------------
+    // SENTENCIAS SQL PREPARADAS COMO CONSTANTES
+    // ----------------------------------------------------------
 
-    private static final String SELECT_BY_ID_SQL = "SELECT id, nombre, email FROM cliente WHERE id=?";
+    private static final String INSERT_SQL =
+            "INSERT INTO cliente (id, nombre, email) VALUES (?, ?, ?)";
+    // Consulta SQL para insertar un cliente.
+    // Usamos ? para parámetros → evita SQL injection y mejora rendimiento con sentencias preparadas.
 
-    private static final String SELECT_ALL_SQL = "SELECT id, nombre, email FROM cliente";
+    private static final String SELECT_BY_ID_SQL =
+            "SELECT id, nombre, email FROM cliente WHERE id = ?";
+    // Consulta SQL para buscar un cliente por su ID.
 
-    public void insert(Cliente cliente)throws SQLException {
-        try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(INSERT_SQL)){
-            ps.setInt(1, cliente.getId());
-            ps.setString(2, cliente.getNombre());
-            ps.setString(3, cliente.getEmail());
+    private static final String SELECT_ALL_SQL =
+            "SELECT id, nombre, email FROM cliente ORDER BY id";
+    // Consulta SQL para obtener todos los clientes ordenados por id.
+
+    private static final String SEARCH_SQL =""" 
+                    SELECT id, nombre, email 
+                    FROM cliente
+                    WHERE CAST (id AS TEXT) ILIKE ?
+                    OR nombre ILIKE ? 
+                    OR email ILIKE ?
+                    ORDER BY id""";
+
+    // ----------------------------------------------------------
+    // MÉTODO: INSERTAR UN CLIENTE
+    // ----------------------------------------------------------
+
+    public void insert(Cliente c) throws SQLException {
+        // Método público que inserta un cliente en la base de datos.
+        // Recibe un objeto Cliente y lanza SQLException si algo sale mal.
+
+        try (Connection con = Db.getConnection();
+             PreparedStatement ps = con.prepareStatement(INSERT_SQL)) {
+
+            // try-with-resources: la conexión y el PreparedStatement se cerrarán automáticamente
+            // al final del bloque, aunque haya errores.
+
+            ps.setInt(1, c.getId());         // Parámetro 1 → columna id
+            ps.setString(2, c.getNombre());  // Parámetro 2 → columna nombre
+            ps.setString(3, c.getEmail());   // Parámetro 3 → columna email
+
             ps.executeUpdate();
+            // Ejecuta la sentencia. Como es un INSERT, no devuelve ResultSet.
+
         }
     }
 
-    public Cliente findById (int id)throws SQLException {
-        try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(SELECT_BY_ID_SQL)){
-            ps.setInt(1, id);
-            try(ResultSet rs=ps.executeQuery()){
-                if(rs.next()) { //esto llama a la funcion next si no existe sale y devuelve el null
-                    return new Cliente(rs.getInt("id"), rs.getString("nombre"), rs.getString("email"));
+
+    // ----------------------------------------------------------
+    // MÉTODO: BUSCAR CLIENTE POR ID
+    // ----------------------------------------------------------
+
+    public Cliente findById(int id) throws SQLException {
+        // Devuelve el Cliente cuyo id coincida con el parámetro.
+        // Si no existe, devuelve null.
+
+        try (Connection con = Db.getConnection();
+             PreparedStatement ps = con.prepareStatement(SELECT_BY_ID_SQL)) {
+
+            ps.setInt(1, id);  // Asignamos el id al parámetro ?
+
+            try (ResultSet rs = ps.executeQuery()) {
+                // executeQuery() devuelve un ResultSet ↔ una tabla virtual con las filas devueltas.
+
+                if (rs.next()) {
+                    // Si rs.next() = true → hay fila. Avanzamos a ella y leemos sus columnas.
+                    mapRow(rs);
                 }
+                return null;
+                // Si no hay resultado, devolvemos null para indicar "no encontrado".
             }
-            return  null;
         }
     }
 
-    public List<Cliente> findAll()throws SQLException {
+    // ----------------------------------------------------------
+    // MÉTODO: LISTAR TODOS LOS CLIENTES
+    // ----------------------------------------------------------
+
+    public List<Cliente> findAll() throws SQLException {
+        // Devuelve una lista con todos los clientes de la tabla.
+        // Nunca devuelve null; si no hay datos, devuelve lista vacía.
+
         List<Cliente> out = new ArrayList<>();
-        try(Connection con = Db.getConnection();  PreparedStatement ps= con.prepareStatement(SELECT_ALL_SQL); ResultSet rs=ps.executeQuery()){
-            while(rs.next()){
-                out.add(new Cliente(rs.getInt("id"), rs.getString("nombre"), rs.getString("email")));
+
+        try (Connection con = Db.getConnection();
+             PreparedStatement ps = con.prepareStatement(SELECT_ALL_SQL);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                // Iteramos por cada fila del ResultSet.
+                // Cada fila se convierte en un objeto Cliente.
+                out.add(mapRow(rs));
+                // Añadimos el cliente a la lista.
+            }
+        }
+        return out;   // Devolvemos la lista completa.
+    }
+
+    public List<Cliente> search (String filtro) throws SQLException {
+        List<Cliente> out = new ArrayList<>();
+
+        String patron ="%"+filtro+"%";
+        try (Connection con = Db.getConnection();
+        PreparedStatement ps = con.prepareStatement(SEARCH_SQL)) {
+            ps.setString(1, patron);
+            ps.setString(2, patron);
+            ps.setString(3, patron);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                out.add(mapRow(rs));
             }
         }
         return out;
     }
 
-
+    //SIMPLIFICAMOS REPETICIONES
+    private Cliente mapRow (ResultSet rs) throws SQLException {
+        Cliente c = new Cliente(
+                rs.getInt("id"),
+                rs.getString("nombre"),
+                rs.getString("email")
+        );
+        return c;
+    }
 
 }
