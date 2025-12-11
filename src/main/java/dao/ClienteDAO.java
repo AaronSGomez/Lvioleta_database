@@ -39,13 +39,16 @@ public class ClienteDAO {
             "SELECT id, nombre, email FROM cliente ORDER BY id";
     // Consulta SQL para obtener todos los clientes ordenados por id.
 
-    private static final String SEARCH_SQL =""" 
-                    SELECT id, nombre, email 
+
+    private static final String SEARCH_SQL = """
+                    SELECT id, nombre, email
                     FROM cliente
-                    WHERE CAST (id AS TEXT) ILIKE ?
-                    OR nombre ILIKE ? 
-                    OR email ILIKE ?
-                    ORDER BY id""";
+                    WHERE CAST(id AS TEXT) ILIKE ? 
+                        OR nombre ILIKE ?  
+                        OR email ILIKE ?
+                    ORDER BY id                    
+                    """;
+
 
     // ----------------------------------------------------------
     // MÉTODO: INSERTAR UN CLIENTE
@@ -71,6 +74,15 @@ public class ClienteDAO {
         }
     }
 
+    public void insert(Cliente c,Connection con) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement(INSERT_SQL)) {
+            ps.setInt(1, c.getId());         // Parámetro 1 → columna id
+            ps.setString(2, c.getNombre());  // Parámetro 2 → columna nombre
+            ps.setString(3, c.getEmail());   // Parámetro 3 → columna email
+            ps.executeUpdate();
+        }
+    }
+
 
     // ----------------------------------------------------------
     // MÉTODO: BUSCAR CLIENTE POR ID
@@ -90,13 +102,20 @@ public class ClienteDAO {
 
                 if (rs.next()) {
                     // Si rs.next() = true → hay fila. Avanzamos a ella y leemos sus columnas.
-                    mapRow(rs);
+
+                    return new Cliente(
+                            rs.getInt("id"),          // Columna 'id'
+                            rs.getString("nombre"),   // Columna 'nombre'
+                            rs.getString("email")     // Columna 'email'
+                    );
                 }
+
                 return null;
                 // Si no hay resultado, devolvemos null para indicar "no encontrado".
             }
         }
     }
+
 
     // ----------------------------------------------------------
     // MÉTODO: LISTAR TODOS LOS CLIENTES
@@ -115,40 +134,52 @@ public class ClienteDAO {
             while (rs.next()) {
                 // Iteramos por cada fila del ResultSet.
                 // Cada fila se convierte en un objeto Cliente.
-                out.add(mapRow(rs));
-                // Añadimos el cliente a la lista.
+
+                Cliente c = new Cliente(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        rs.getString("email")
+                );
+
+                out.add(c);   // Añadimos el cliente a la lista.
             }
         }
+
         return out;   // Devolvemos la lista completa.
     }
 
-    public List<Cliente> search (String filtro) throws SQLException {
-        List<Cliente> out = new ArrayList<>();
+    public List<Cliente> search(String filtro) throws SQLException {
 
-        String patron ="%"+filtro+"%";
+        String patron = "%" + filtro + "%";
+
         try (Connection con = Db.getConnection();
-        PreparedStatement ps = con.prepareStatement(SEARCH_SQL)) {
-            ps.setString(1, patron);
-            ps.setString(2, patron);
-            ps.setString(3, patron);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                out.add(mapRow(rs));
+             PreparedStatement pst = con.prepareStatement(SEARCH_SQL)) {
+            pst.setString(1, patron);
+            pst.setString(2, patron);
+            pst.setString(3, patron);
+
+            List<Cliente> out = new ArrayList<>();
+
+            try(ResultSet rs = pst.executeQuery()){
+
+                while (rs.next()){
+                    out.add(mapRow(rs));
+                }
             }
+            return out;
         }
-        return out;
     }
 
-    //SIMPLIFICAMOS REPETICIONES
-    private Cliente mapRow (ResultSet rs) throws SQLException {
+    private Cliente mapRow(ResultSet rs) throws SQLException {
+
         Cliente c = new Cliente(
                 rs.getInt("id"),
                 rs.getString("nombre"),
                 rs.getString("email")
         );
+
         return c;
     }
 
-    //crear update y delete
 
 }

@@ -1,6 +1,7 @@
 package app;
 
 import dao.ClienteDAO;
+import dao.DetalleClienteDAO;
 import model.Cliente;
 
 import javafx.collections.FXCollections;
@@ -11,9 +12,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import model.DetalleCliente;
+import services.ClienteDetalle;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +44,10 @@ public class ClientesView {
     private final TableView<Cliente> tabla = new TableView<>();
     private final ObservableList<Cliente> datos = FXCollections.observableArrayList();
 
+    private final DetalleClienteDAO detalleClienteDAO = new DetalleClienteDAO();
+
+    // Caché en memoria: idCliente -> detalle
+    private final Map<Integer, DetalleCliente> cacheDetalles = new HashMap<>();
     // Campos de formulario (Cliente)
     private final TextField txtId = new TextField();
     private final TextField txtNombre = new TextField();
@@ -62,6 +71,7 @@ public class ClientesView {
 
     // DAO (acceso a BD)
     private final ClienteDAO clienteDAO = new ClienteDAO();
+    private final ClienteDetalle clienteService= new ClienteDetalle();
 
     public ClientesView() {
         configurarTabla();
@@ -93,16 +103,25 @@ public class ClientesView {
 
         // ===== Columnas “placeholder” para DetalleCliente =====
         TableColumn<Cliente, String> colDireccion = new TableColumn<>("Dirección");
-        colDireccion.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(""));
+        colDireccion.setCellValueFactory(c -> {
+            DetalleCliente d = cacheDetalles.get(c.getValue().getId());
+            String valor = (d != null) ? d.getDireccion() : "";
+            return new javafx.beans.property.SimpleStringProperty(valor);
+        });
 
         TableColumn<Cliente, String> colTelefono = new TableColumn<>("Teléfono");
-        colTelefono.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(""));
+        colTelefono.setCellValueFactory(c -> {
+            DetalleCliente d = cacheDetalles.get(c.getValue().getId());
+            String valor = (d != null) ? d.getTelefono() : "";
+            return new javafx.beans.property.SimpleStringProperty(valor);
+        });
 
         TableColumn<Cliente, String> colNotas = new TableColumn<>("Notas");
-        colNotas.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(""));
+        colNotas.setCellValueFactory(c -> {
+            DetalleCliente d = cacheDetalles.get(c.getValue().getId());
+            String valor = (d != null) ? d.getNotas() : "";
+            return new javafx.beans.property.SimpleStringProperty(valor);
+        });
 
         tabla.getColumns().addAll(colId, colNombre, colEmail,
                 colDireccion, colTelefono, colNotas);
@@ -110,7 +129,6 @@ public class ClientesView {
 
         root.setCenter(tabla);
     }
-
     private void configurarFormulario() {
         GridPane form = new GridPane();
         form.setPadding(new Insets(10));
@@ -206,12 +224,27 @@ public class ClientesView {
      */
     private void recargarDatos() {
         try {
-            List<Cliente> lista = clienteDAO.findAll();
-            datos.setAll(lista);
+            // 1) Cargar todos los clientes
+            List<Cliente> clientes = clienteDAO.findAll();
+
+            // 2) Cargar todos los detalles
+            List<DetalleCliente> detalles = detalleClienteDAO.findAll();
+
+            // 3) Rellenar la caché id -> detalle
+            cacheDetalles.clear();
+            for (DetalleCliente d : detalles) {
+                cacheDetalles.put(d.getId(), d);
+            }
+
+            // 4) Refrescar la tabla  👈 AHORA SÍ
+            datos.setAll(clientes);
+
         } catch (SQLException e) {
-            mostrarError("Error al cargar clientes", e);
+            mostrarError("Error al recargar datos", e);
         }
     }
+
+
 
     /**
      * Búsqueda de momento hecha EN MEMORIA.
@@ -245,22 +278,24 @@ public class ClientesView {
         }
     }
 
-    private void buscarClientesEnBBDD() {
+
+    private void buscarClientesEnBBDD(){
         String filtro = txtBuscar.getText().trim();
-        if(filtro.isEmpty()) {
+
+        if ((filtro.isEmpty())){
             recargarDatos();
             return;
         }
+
         try {
             List<Cliente> lista = clienteDAO.search(filtro);
             datos.setAll(lista);
 
-        }catch (SQLException e){
+        } catch (SQLException e){
             mostrarError("Error al buscar", e);
         }
 
     }
-
 
     private void limpiarFormulario() {
         txtId.clear();
@@ -284,7 +319,7 @@ public class ClientesView {
      *      * insertar/actualizar también el detalle en una transacción.
      */
     private void guardarCliente() {
-        // Validación rápida
+        // Con ID manual, vuelve a ser obligatorio
         if (txtId.getText().isBlank() ||
                 txtNombre.getText().isBlank() ||
                 txtEmail.getText().isBlank()) {
@@ -302,41 +337,43 @@ public class ClientesView {
             return;
         }
 
-        Cliente c = new Cliente(id,
+        // Cliente con ID escrito por el usuario
+        Cliente c = new Cliente(
+                id,
                 txtNombre.getText().trim(),
-                txtEmail.getText().trim());
+                txtEmail.getText().trim()
+        );
 
-        // En el futuro podrías crear aquí también un DetalleCliente con:
-        //   id, txtDireccion.getText(), txtTelefono.getText(), txtNotas.getText()
-        // y pasarlo a un ClienteService.crearClienteConDetalle(...)
+        // DetalleCliente con el MISMO ID
+        DetalleCliente d = new DetalleCliente(
+                id,
+                txtDireccion.getText().trim(),
+                txtTelefono.getText().trim(),
+                txtNotas.getText().trim()
+        );
 
         try {
+            // Comprobamos en BD si ese ID ya existe
             Cliente existente = clienteDAO.findById(id);
 
             if (existente == null) {
-                // No existe → INSERT real
-                clienteDAO.insert(c);
 
-                // TODO: cuando exista DetalleClienteDAO, aquí insertar también el detalle.
-                //  Ejemplo futuro:
-                //  detalleDAO.insert(new DetalleCliente(id, dir, tlf, notas));
+                clienteService.guardarClienteCompleto(c,d);
 
-                mostrarInfo("Insertado", "Cliente creado correctamente.");
+                mostrarInfo("Insertado",
+                        "Cliente y detalle creados (sin transacción).");
             } else {
-                // Ya existe → aquí en el futuro iría un UPDATE.
-                // TODO: cuando implementéis ClienteDAO.update(Cliente),
-                //  y DetalleClienteDAO.update(DetalleCliente),
-                //  llamad aquí a esos métodos (idealmente a través de ClienteService).
+
                 mostrarAlerta("Actualizar pendiente",
                         "El cliente ya existe.\n" +
-                                "Más adelante aquí haremos UPDATE desde el DAO/Service.");
+                                "Más adelante aquí haremos UPDATE desde el Service.");
             }
 
             recargarDatos();
             limpiarFormulario();
 
         } catch (SQLException e) {
-            mostrarError("Error al guardar cliente", e);
+            mostrarError("Error al guardar cliente y detalle", e);
         }
     }
 
@@ -374,21 +411,7 @@ public class ClientesView {
                 "Aún no existe deleteById en ClienteDAO.\n" +
                         "Cuando lo implementemos, aquí se llamará al método.");
 
-        // Ejemplo futuro:
-        /*
-        try {
-            int borradas = clienteDAO.deleteById(sel.getId());
-            if (borradas > 0) {
-                mostrarInfo("Borrado", "Cliente eliminado.");
-                recargarDatos();
-                limpiarFormulario();
-            } else {
-                mostrarAlerta("No borrado", "No se encontró el cliente en la BD.");
-            }
-        } catch (SQLException e) {
-            mostrarError("Error al borrar cliente", e);
-        }
-        */
+
     }
 
     /* =========================================================

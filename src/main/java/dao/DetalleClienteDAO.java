@@ -1,6 +1,7 @@
 package dao;
 
 import db.Db;
+import model.Cliente;
 import model.DetalleCliente;
 
 import java.sql.*;
@@ -21,34 +22,34 @@ public class DetalleClienteDAO {
 
     /** Consulta para insertar un detalle asociado a un cliente. */
     private static final String INSERT_SQL = """
-            INSERT INTO lampreadb.detalle_cliente (id, direccion, telefono, notas)
+            INSERT INTO detalle_cliente (id, direccion, telefono, notas)
             VALUES (?, ?, ?, ?)
             """;
 
     /** Consulta para obtener un detalle por su id (que coincide con id cliente). */
     private static final String SELECT_BY_ID_SQL = """
             SELECT id, direccion, telefono, notas
-            FROM lampreadb.detalle_cliente
+            FROM detalle_cliente
             WHERE id = ?
             """;
 
     /** Consulta para listar todos los detalles (útil para debugging). */
     private static final String SELECT_ALL_SQL = """
             SELECT id, direccion, telefono, notas
-            FROM lampreadb.detalle_cliente
+            FROM detalle_cliente
             ORDER BY id
             """;
 
     /** Consulta para actualizar los datos del detalle. */
     private static final String UPDATE_SQL = """
-            UPDATE lampreadb.detalle_cliente
+            UPDATE detalle_cliente
             SET direccion = ?, telefono = ?, notas = ?
             WHERE id = ?
             """;
 
     /** Consulta para borrar un detalle por ID. */
     private static final String DELETE_SQL = """
-            DELETE FROM lampreadb.detalle_cliente
+            DELETE FROM detalle_cliente
             WHERE id = ?
             """;
 
@@ -66,11 +67,32 @@ public class DetalleClienteDAO {
 
             pst.setInt(1, d.getId());
             pst.setString(2, d.getDireccion());
-            pst.setString(3, d.getTelefono());
+            String tel = d.getTelefono();
+            if (tel == null || tel.isBlank()) {
+                pst.setNull(3, Types.VARCHAR);   // ← fuerza NULL → rompe NOT NULL
+            } else {
+                pst.setString(3, tel.trim());
+            }
             pst.setString(4, d.getNotas());
 
             pst.executeUpdate();
         }
+    }
+    public void insert(DetalleCliente d, Connection con) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement(INSERT_SQL)) {
+            ps.setInt(1, d.getId());
+            ps.setString(2, d.getDireccion());
+            String tel = d.getTelefono();
+            if (tel == null || tel.isBlank()) {
+                ps.setNull(3, Types.VARCHAR);   // ← fuerza NULL → rompe NOT NULL
+            } else {
+                ps.setString(3, tel.trim());
+            }
+            ps.setString(4, d.getNotas());
+
+            ps.executeUpdate();
+        }
+
     }
 
     /**
