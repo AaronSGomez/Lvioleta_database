@@ -73,6 +73,7 @@ public class ClientesView {
     private final ClienteDAO clienteDAO = new ClienteDAO();
     private final ClienteDetalle clienteService= new ClienteDetalle();
 
+
     public ClientesView() {
         configurarTabla();
         configurarFormulario();
@@ -185,14 +186,27 @@ public class ClientesView {
                 txtNombre.setText(newSel.getNombre());
                 txtEmail.setText(newSel.getEmail());
                 txtId.setDisable(true); // al editar, de momento, no dejamos cambiar el ID
+                //DetalleCliente
+                try {
+                    DetalleCliente newDetalle = detalleClienteDAO.findById(newSel.getId());
+                    if (newDetalle != null) {
+                        txtDireccion.setText(newDetalle.getDireccion());
+                        txtTelefono.setText(newDetalle.getTelefono());
+                        txtNotas.setText(newDetalle.getNotas());
+                    }   else{
+                        txtDireccion.clear();
+                        txtTelefono.clear();
+                        txtNotas.clear();
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
 
                 // DetalleCliente (cuando exista DetalleClienteDAO se cargará desde BD)
                 // TODO: cuando implementéis DetalleClienteDAO, aquí:
                 //   - detalleDAO.findById(newSel.getId())
                 //   - rellenar txtDireccion, txtTelefono, txtNotas con sus valores
-                txtDireccion.clear();
-                txtTelefono.clear();
-                txtNotas.clear();
+
             }
         });
 
