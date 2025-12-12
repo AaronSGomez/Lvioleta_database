@@ -9,8 +9,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import model.Cliente;
-import model.DetalleCliente;
 import model.Producto;
 
 import java.sql.SQLException;
@@ -292,4 +290,5 @@ public class ProductosView {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+
 }

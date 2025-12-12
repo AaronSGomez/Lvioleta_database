@@ -19,14 +19,14 @@ public class ProductoDAO {
     private static final String SELECT_ALL_SQL = "SELECT id, nombre, precio FROM producto";
 
     private static final String SEARCH_SQL = """
-                    SELECT id, nombre
+                    SELECT id, nombre, precio
                     FROM producto
                     WHERE CAST(id AS TEXT) ILIKE ? 
                         OR nombre ILIKE ?  
                     ORDER BY id                    
                     """;
-    //en el SELECT ,precio
-    //OR precio ILIKE ?
+
+    //OR precio ILIKE ?  - > eliminar esta opcion da problemas al buscar doubles, porque no es un String
 
     public void insert(Producto producto)throws SQLException {
         try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(INSERT_SQL)){
