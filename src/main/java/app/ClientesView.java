@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  *  - Guardar/actualizar detalle junto con el cliente.
  *  - Borrar detalle cuando borres un cliente.
  */
-public class ClientesView {
+public class ClientesView{
 
     private final BorderPane root = new BorderPane();
 

@@ -1,6 +1,7 @@
 package dao;
 
 import db.Db;
+import model.Cliente;
 import model.Producto;
 
 import java.sql.Connection;
@@ -16,6 +17,16 @@ public class ProductoDAO {
     private static final String SELECT_BY_ID_SQL = "SELECT id, nombre, precio FROM producto WHERE id=?";
 
     private static final String SELECT_ALL_SQL = "SELECT id, nombre, precio FROM producto";
+
+    private static final String SEARCH_SQL = """
+                    SELECT id, nombre
+                    FROM producto
+                    WHERE CAST(id AS TEXT) ILIKE ? 
+                        OR nombre ILIKE ?  
+                    ORDER BY id                    
+                    """;
+    //en el SELECT ,precio
+    //OR precio ILIKE ?
 
     public void insert(Producto producto)throws SQLException {
         try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(INSERT_SQL)){
@@ -42,9 +53,44 @@ public class ProductoDAO {
         List<Producto> out = new ArrayList<>();
         try(Connection con = Db.getConnection();  PreparedStatement ps= con.prepareStatement(SELECT_ALL_SQL); ResultSet rs=ps.executeQuery()){
             while(rs.next()){
-                out.add(new Producto(rs.getInt("id"), rs.getString("nombre"), rs.getDouble("precio")));
+                out.add(mapRow(rs));
             }
         }
         return out;
     }
+
+    public List<Producto> search(String filtro) throws SQLException {
+
+        String patron = "%" + filtro + "%";
+
+        try (Connection con = Db.getConnection();
+             PreparedStatement pst = con.prepareStatement(SEARCH_SQL)) {
+            pst.setString(1, patron);
+            pst.setString(2, patron);
+            //pst.setString(3, patron);
+
+            List<Producto> out = new ArrayList<>();
+
+            try(ResultSet rs = pst.executeQuery()){
+
+                while (rs.next()){
+                    out.add(mapRow(rs));
+                }
+            }
+            return out;
+        }
+    }
+
+    private Producto mapRow(ResultSet rs) throws SQLException {
+
+        Producto p = new Producto(
+                rs.getInt("id"),
+                rs.getString("nombre"),
+                rs.getDouble("precio")
+        );
+
+        return p;
+    }
+
+
 }
