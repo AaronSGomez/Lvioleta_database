@@ -2,6 +2,7 @@ package dao;
 
 import db.Db;
 import model.Pedido;
+import model.Producto;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -23,14 +24,30 @@ public class PedidoDAO {
     private static final String SELECT_ALL_SQL =
             "SELECT id, cliente_id, fecha FROM pedido ORDER BY id";
 
+    private static final String SEARCH_SQL = """
+                    SELECT id, cliente_id, fecha
+                    FROM pedido
+                    WHERE id = ?
+                        OR cliente_id = ?
+                    ORDER BY id                    
+                    """;
+
     public void insert(Pedido p) throws SQLException {
         try (Connection con = Db.getConnection();
-             PreparedStatement pst = con.prepareStatement(INSERT_SQL)) {
-
+            PreparedStatement pst = con.prepareStatement(INSERT_SQL);){
             pst.setInt(1, p.getId());
             pst.setInt(2, p.getClienteId());
             pst.setDate(3, Date.valueOf(p.getFecha()));
 
+            pst.executeUpdate();
+        }
+    }
+
+    public void insert(Pedido p, Connection con) throws SQLException {
+        try (PreparedStatement pst = con.prepareStatement(INSERT_SQL);){
+            pst.setInt(1, p.getId());
+            pst.setInt(2, p.getClienteId());
+            pst.setDate(3, Date.valueOf(p.getFecha()));
             pst.executeUpdate();
         }
     }
@@ -63,6 +80,28 @@ public class PedidoDAO {
         }
 
         return out;
+    }
+
+    public List<Pedido> search(String filtro) throws SQLException {
+
+        String patron = "%" + filtro + "%";
+
+        try (Connection con = Db.getConnection();
+             PreparedStatement pst = con.prepareStatement(SEARCH_SQL)) {
+            pst.setString(1, patron);
+            pst.setString(2, patron);
+            //pst.setString(3, patron);
+
+            List<Pedido> out = new ArrayList<>();
+
+            try(ResultSet rs = pst.executeQuery()){
+
+                while (rs.next()){
+                    out.add(mapRow(rs));
+                }
+            }
+            return out;
+        }
     }
 
     private Pedido mapRow(ResultSet rs) throws SQLException {

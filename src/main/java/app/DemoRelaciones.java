@@ -230,7 +230,7 @@ public class DemoRelaciones {
             System.out.println(p);
 
             // Si tu DetallePedidoDAO tiene método findByPedidoId:
-            List<DetallePedido> lineas = detallePedidoDAO.findByPedidoId(p.getId());
+            List<DetallePedido> lineas = detallePedidoDAO.findById(p.getId());
             for (DetallePedido dp : lineas) {
                 System.out.println("   -> " + dp);
             }
@@ -260,7 +260,7 @@ public class DemoRelaciones {
         }
 
         System.out.println(p);
-        List<DetallePedido> lineas = detallePedidoDAO.findByPedidoId(p.getId());
+        List<DetallePedido> lineas = detallePedidoDAO.findById(p.getId());
         for (DetallePedido dp : lineas) {
             System.out.println("   -> " + dp);
         }

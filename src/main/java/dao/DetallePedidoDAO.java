@@ -15,7 +15,7 @@ public class DetallePedidoDAO {
 
     private static final String INSERT_SQL =
             """
-            INSERT INTO ldetalle_pedido
+            INSERT INTO detalle_pedido
             (pedido_id, producto_id, cantidad, precio_unit)
             VALUES (?, ?, ?, ?)
             """;
@@ -63,7 +63,7 @@ public class DetallePedidoDAO {
         return out;
     }
 
-    public List<DetallePedido> findByPedidoId(int pedidoId) throws SQLException {
+    public List<DetallePedido> findById(int pedidoId) throws SQLException {
         List<DetallePedido> out = new ArrayList<>();
 
         try (Connection con = Db.getConnection();
@@ -79,6 +79,18 @@ public class DetallePedidoDAO {
         }
 
         return out;
+    }
+
+    public void insertList(Integer idPedidoPadre, List<DetallePedido> detalles, Connection con) throws SQLException {
+        try (var stmt = con.prepareStatement(INSERT_SQL)) {
+            for (DetallePedido d : detalles) {
+                stmt.setInt(1, idPedidoPadre);
+                stmt.setInt(2, d.getProductoId());
+                stmt.setInt(3, d.getCantidad());
+                stmt.setDouble(4, d.getPrecioUnit());
+                stmt.executeUpdate();
+            }
+        }
     }
 
     private DetallePedido mapRow(ResultSet rs) throws SQLException {

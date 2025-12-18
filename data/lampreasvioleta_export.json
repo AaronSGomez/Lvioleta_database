@@ -1,0 +1,144 @@
+{
+  "clientes" : [ {
+    "id" : 1,
+    "nombre" : "Aaron Gomez",
+    "email" : "nomeacuerdobien@gmail.com",
+    "detalle" : null,
+    "pedidos" : [ ]
+  }, {
+    "id" : 2,
+    "nombre" : "Roberto Roodriguez",
+    "email" : "robert@terra.com",
+    "detalle" : null,
+    "pedidos" : [ ]
+  }, {
+    "id" : 3,
+    "nombre" : "Sara",
+    "email" : "sara@goza.es",
+    "detalle" : null,
+    "pedidos" : [ ]
+  }, {
+    "id" : 4,
+    "nombre" : "Jose",
+    "email" : "jose@arimatea.com",
+    "detalle" : null,
+    "pedidos" : [ ]
+  }, {
+    "id" : 5,
+    "nombre" : "Judas",
+    "email" : "Judas@iscariote.es",
+    "detalle" : null,
+    "pedidos" : [ ]
+  }, {
+    "id" : 6,
+    "nombre" : "Mariano",
+    "email" : "elalcalde@elijepueblo.es",
+    "detalle" : null,
+    "pedidos" : [ ]
+  }, {
+    "id" : 7,
+    "nombre" : "Pedro",
+    "email" : "perrosanchez@julai.es",
+    "detalle" : null,
+    "pedidos" : [ ]
+  } ],
+  "detallesCliente" : [ {
+    "id" : 4,
+    "direccion" : "Arimatea",
+    "telefono" : "666666666",
+    "notas" : "Huele a quesito"
+  }, {
+    "id" : 6,
+    "direccion" : "gallegono",
+    "telefono" : "666777888",
+    "notas" : "M.Rajoy no soy yo"
+  }, {
+    "id" : 7,
+    "direccion" : "moncloa",
+    "telefono" : "777777777",
+    "notas" : "aqui me quedo"
+  } ],
+  "productos" : [ {
+    "id" : 1,
+    "nombre" : "Logitech ERGO M575S",
+    "precio" : 37.99
+  }, {
+    "id" : 2,
+    "nombre" : "PERIBOARD-335BL",
+    "precio" : 46.99
+  }, {
+    "id" : 3,
+    "nombre" : "Procesador Intel Core i7-13700K",
+    "precio" : 429.29
+  }, {
+    "id" : 4,
+    "nombre" : "Tarjeta gráfica NVIDIA RTX 4070 Ti",
+    "precio" : 849.0
+  }, {
+    "id" : 5,
+    "nombre" : "Memoria RAM Corsair Vengeance 32GB DDR5",
+    "precio" : 179.9
+  }, {
+    "id" : 6,
+    "nombre" : "Disco SSD Samsung 980 Pro 1TB",
+    "precio" : 119.99
+  }, {
+    "id" : 7,
+    "nombre" : "Placa base ASUS ROG Strix Z790-E",
+    "precio" : 389.0
+  }, {
+    "id" : 8,
+    "nombre" : "Monitor LG UltraGear 27\" QHD 165Hz",
+    "precio" : 299.0
+  }, {
+    "id" : 9,
+    "nombre" : "Teclado mecánico Logitech G915",
+    "precio" : 229.0
+  }, {
+    "id" : 10,
+    "nombre" : "Ratón inalámbrico Razer Basilisk X",
+    "precio" : 59.99
+  }, {
+    "id" : 11,
+    "nombre" : "Fuente de alimentación Corsair RM850x",
+    "precio" : 149.0
+  }, {
+    "id" : 12,
+    "nombre" : "Caja PC NZXT H510 Flow",
+    "precio" : 99.9
+  }, {
+    "id" : 13,
+    "nombre" : "Auriculares HyperX Cloud Alpha",
+    "precio" : 99.0
+  }, {
+    "id" : 14,
+    "nombre" : "Webcam Logitech Brio 4K",
+    "precio" : 199.0
+  }, {
+    "id" : 15,
+    "nombre" : "Impresora multifunción HP LaserJet Pro MFP M428fdw",
+    "precio" : 399.0
+  }, {
+    "id" : 16,
+    "nombre" : "Disco duro externo WD My Passport 4TB",
+    "precio" : 119.0
+  }, {
+    "id" : 17,
+    "nombre" : "Router ASUS RT-AX88U WiFi 6",
+    "precio" : 299.0
+  }, {
+    "id" : 18,
+    "nombre" : "Micrófono USB Blue Yeti",
+    "precio" : 129.0
+  }, {
+    "id" : 19,
+    "nombre" : "Adaptador USB-C a HDMI Anker",
+    "precio" : 24.99
+  }, {
+    "id" : 20,
+    "nombre" : "Cargador portátil Anker PowerCore 20,000mAh",
+    "precio" : 49.99
+  } ],
+  "pedidos" : [ ],
+  "detallesPedido" : [ ]
+}

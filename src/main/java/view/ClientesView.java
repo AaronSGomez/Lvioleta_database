@@ -1,4 +1,4 @@
-package app;
+package view;
 
 import dao.ClienteDAO;
 import dao.DetalleClienteDAO;

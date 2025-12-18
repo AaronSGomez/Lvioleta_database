@@ -1,4 +1,4 @@
-package app;
+package view;
 
 import dao.ProductoDAO;
 import javafx.collections.FXCollections;

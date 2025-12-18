@@ -13,12 +13,12 @@ public class Cliente {
     private Integer id;            // PK
     private String nombre;
     private String email;
-
     // 1:1
     private DetalleCliente detalle; // puede ser null si aún no hay detalle
 
     // 1:N
     private List<Pedido> pedidos = new ArrayList<>();
+
 
     public Cliente() {}
     public Cliente(Integer id, String nombre, String email) {
