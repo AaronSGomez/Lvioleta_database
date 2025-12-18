@@ -1,51 +1,75 @@
 package dao;
 
 import db.Db;
-import model.Producto;
+import model.Pedido;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO de la entidad Pedido.
+ * Relación N:1 con Cliente.
+ */
 public class PedidoDAO {
-    private static final String INSERT_SQL ="INSERT INTO producto (id, nombre, precio) VALUES (?, ?, ?)";
 
-    private static final String SELECT_BY_ID_SQL = "SELECT id, nombre, precio FROM producto WHERE id=?";
+    private static final String INSERT_SQL =
+            "INSERT INTO pedido (id, cliente_id, fecha) VALUES (?, ?, ?)";
 
-    private static final String SELECT_ALL_SQL = "SELECT id, nombre, precio FROM producto";
+    private static final String SELECT_BY_ID_SQL =
+            "SELECT id, cliente_id, fecha FROM lpedido WHERE id = ?";
 
-    public void insert(Producto producto)throws SQLException {
-        try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(INSERT_SQL)){
-            ps.setInt(1, producto.getId());
-            ps.setString(2, producto.getNombre());
-            ps.setString(3, ""+producto.getPrecio());
-            ps.executeUpdate();
+    private static final String SELECT_ALL_SQL =
+            "SELECT id, cliente_id, fecha FROM pedido ORDER BY id";
+
+    public void insert(Pedido p) throws SQLException {
+        try (Connection con = Db.getConnection();
+             PreparedStatement pst = con.prepareStatement(INSERT_SQL)) {
+
+            pst.setInt(1, p.getId());
+            pst.setInt(2, p.getClienteId());
+            pst.setDate(3, Date.valueOf(p.getFecha()));
+
+            pst.executeUpdate();
         }
     }
 
-    public Producto findById (int id)throws SQLException {
-        try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(SELECT_BY_ID_SQL)){
-            ps.setInt(1, id);
-            try(ResultSet rs=ps.executeQuery()){
-                if(rs.next()) { //esto llama a la funcion next si no existe sale y devuelve el null
-                    return new Producto(rs.getInt("id"), rs.getString("nombre"), rs.getDouble("precio"));
+    public Pedido findById(int id) throws SQLException {
+        try (Connection con = Db.getConnection();
+             PreparedStatement pst = con.prepareStatement(SELECT_BY_ID_SQL)) {
+
+            pst.setInt(1, id);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
                 }
+                return null;
             }
-            return  null;
         }
     }
 
-    public List<Producto> findAll()throws SQLException {
-        List<Producto> out = new ArrayList<>();
-        try(Connection con = Db.getConnection();  PreparedStatement ps= con.prepareStatement(SELECT_ALL_SQL); ResultSet rs=ps.executeQuery()){
-            while(rs.next()){
-                out.add(new Producto(rs.getInt("id"), rs.getString("nombre"), rs.getDouble("precio")));
+    public List<Pedido> findAll() throws SQLException {
+        List<Pedido> out = new ArrayList<>();
+
+        try (Connection con = Db.getConnection();
+             PreparedStatement pst = con.prepareStatement(SELECT_ALL_SQL);
+             ResultSet rs = pst.executeQuery()) {
+
+            while (rs.next()) {
+                out.add(mapRow(rs));
             }
         }
+
         return out;
     }
 
+    private Pedido mapRow(ResultSet rs) throws SQLException {
+        return new Pedido(
+                rs.getInt("id"),
+                rs.getInt("cliente_id"),
+                rs.getDate("fecha").toLocalDate()
+        );
+    }
 }
