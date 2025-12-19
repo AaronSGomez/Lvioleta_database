@@ -16,9 +16,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import model.Cliente;
 import model.DetallePedido;
 import model.Pedido;
+import model.Producto;
 import services.AlmacenData;
 import services.PedidoDetalle;
 
@@ -50,7 +52,7 @@ public class PedidosView {
     private final DatePicker txtFecha = new DatePicker();
 
     // CAMPOS DETALLE (Líneas)
-    private final TextField txtProductoId = new TextField();
+    private final ComboBox<Producto> comboProducto = new ComboBox<>();
     private final TextField txtCantidad = new TextField();
     private final TextField txtPrecioU = new TextField();
 
@@ -74,6 +76,7 @@ public class PedidosView {
         configurarTablaPedidos();
         configurarTablaDetalles(); // Configuramos la segunda tabla
         configurarLayoutCentral(); // Unimos las dos tablas visualmente
+        configurarComboProductos();
         configurarFormulario();
         configurarEventos();
         recargarDatos();
@@ -189,10 +192,10 @@ public class PedidosView {
         GridPane formDetalle = new GridPane();
         formDetalle.setHgap(10); formDetalle.setVgap(10);
         formDetalle.add(new Label("LÍNEA DE PRODUCTO"), 0, 0, 2, 1);
-        formDetalle.add(new Label("ID Prod:"), 0, 1); formDetalle.add(txtProductoId, 1, 1);
+        formDetalle.add(new Label("ID Prod:"), 0, 1); formDetalle.add(comboProducto, 1, 1);
         formDetalle.add(new Label("Cant:"), 0, 2); formDetalle.add(txtCantidad, 1, 2);
         formDetalle.add(new Label("Precio/u:"), 0, 3); formDetalle.add(txtPrecioU, 1, 3);
-        txtProductoId.setPromptText("ID Prod");
+
         txtCantidad.setPromptText("Cant");
         txtPrecioU.setPromptText("Precio/unidad");
 
@@ -214,14 +217,14 @@ public class PedidosView {
     }
 
     private void configurarEventos() {
-        // SELECCIÓN EN TABLA PEDIDOS
+        // TABLA PEDIDOS
         tablaPedidos.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
                 cargarPedidoEnFormulario(newSel);
             }
         });
 
-        // BOTONES MEMORIA (Tabla Detalles)
+        // AGREGAR DETALLE (CORREGIDO PARA USAR COMBO)
         btnAgregarDetalle.setOnAction(e -> agregarDetalleEnMemoria());
 
         btnQuitarDetalle.setOnAction(e -> {
@@ -229,23 +232,15 @@ public class PedidosView {
             if (seleccionado != null) {
                 tablaDetalles.getItems().remove(seleccionado);
             } else {
-                mostrarAlerta("Aviso", "Selecciona una línea de detalle para quitarla.");
+                mostrarAlerta("Aviso", "Selecciona una línea para quitarla.");
             }
         });
 
-        // --- BOTONES BBDD ---
+        // BOTONES GLOBALES
         btnNuevo.setOnAction(e -> limpiarFormularioCompleto());
-
-        // Guardar todo junto
         btnGuardar.setOnAction(e -> guardarTransaccionCompleta());
-
         btnBorrar.setOnAction(e -> borrarPedidoActual());
-
-        btnRecargar.setOnAction(e -> {
-            txtBuscar.clear();
-            recargarDatos();
-        });
-
+        btnRecargar.setOnAction(e -> { txtBuscar.clear(); recargarDatos(); });
         btnBuscar.setOnAction(e -> buscarPedidos());
         btnLimpiarBusqueda.setOnAction(e -> { txtBuscar.clear(); recargarDatos(); });
     }
@@ -271,37 +266,47 @@ public class PedidosView {
     }
 
     private void agregarDetalleEnMemoria() {
-        // Validar campos de detalle
-        if (txtProductoId.getText().isBlank() || txtCantidad.getText().isBlank() || txtPrecioU.getText().isBlank()) {
-            mostrarAlerta("Datos incompletos", "Rellena Producto, Cantidad y Precio.");
+        // 1. Validar selección del combo
+        Producto prodSeleccionado = comboProducto.getValue();
+
+        if (prodSeleccionado == null || txtCantidad.getText().isBlank() || txtPrecioU.getText().isBlank()) {
+            mostrarAlerta("Datos incompletos", "Selecciona Producto, Cantidad y Precio.");
             return;
         }
 
         try {
-            int prodId = Integer.parseInt(txtProductoId.getText().trim());
             int cant = Integer.parseInt(txtCantidad.getText().trim());
+            // Usamos el precio del TextField por si el usuario lo editó manualmente
             double precio = Double.parseDouble(txtPrecioU.getText().trim());
 
-            // Obtenemos el ID del pedido actual (si existe), o 0 si es nuevo
+            // ID Pedido temporal (0 si es nuevo, o el ID actual si estamos editando)
             int currentPedidoId = 0;
             if (!txtId.getText().isBlank()) {
                 currentPedidoId = Integer.parseInt(txtId.getText());
             }
 
-            // Creamos el objeto (NO SE GUARDA EN BD, SOLO EN TABLA)
-            DetallePedido nuevoDetalle = new DetallePedido(currentPedidoId, prodId, cant, precio);
+            // CREAR OBJETO
+            DetallePedido nuevoDetalle = new DetallePedido(
+                    currentPedidoId,
+                    prodSeleccionado.getId(), // ID desde el objeto Combo
+                    cant,
+                    precio
+            );
 
-            // Añadimos a la tabla visual
+            // IMPORTANTE: Rellenamos el campo auxiliar "Nombre" para que se vea en la tabla
+            nuevoDetalle.setNombreProducto(prodSeleccionado.getNombre());
+
+            // AÑADIR A LA TABLA VISUAL
             tablaDetalles.getItems().add(nuevoDetalle);
 
-            // Limpiamos campos de detalle para meter el siguiente
-            txtProductoId.clear();
+            // LIMPIAR CAMPOS DETALLE
+            comboProducto.getSelectionModel().clearSelection();
             txtCantidad.clear();
             txtPrecioU.clear();
-            txtProductoId.requestFocus();
+            comboProducto.requestFocus();
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error de formato", "Asegúrate de poner números válidos.");
+            mostrarAlerta("Error de formato", "Cantidad y Precio deben ser números.");
         }
     }
 
@@ -372,13 +377,43 @@ public class PedidosView {
         } catch (SQLException e) { mostrarError("Error buscando", e); }
     }
 
+    private void configurarComboProductos() {
+        try {
+            // 1. Cargar lista desde Almacén
+            List<Producto> lista = AlmacenData.getProductos();
+            comboProducto.setItems(FXCollections.observableArrayList(lista));
+
+            // 2. Converter para ver Nombre (Precio)
+            comboProducto.setConverter(new StringConverter<Producto>() {
+                @Override
+                public String toString(Producto p) {
+                    if (p == null) return null;
+                    return p.getNombre();
+                }
+
+                @Override
+                public Producto fromString(String string) { return null; }
+            });
+
+            // 3. Listener para poner precio automático
+            comboProducto.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null) {
+                    txtPrecioU.setText(String.valueOf(newVal.getPrecio()));
+                }
+            });
+
+        } catch (SQLException e) {
+            mostrarError("Error cargando productos", e);
+        }
+    }
+
     private void limpiarFormularioCompleto() {
         txtId.clear();
         txtClienteId.clear();
         txtFecha.setValue(LocalDate.now());
         txtId.setDisable(false);
 
-        txtProductoId.clear();
+        comboProducto.getSelectionModel().clearSelection();
         txtCantidad.clear();
         txtPrecioU.clear();
 

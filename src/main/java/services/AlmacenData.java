@@ -13,38 +13,29 @@ public class AlmacenData {
     // Getter
 
     public static List<Producto> getProductos() throws SQLException {
-        if (data.getProductos().isEmpty()) {
-            // Si está vacía, es la primera vez. Cargamos desde BD.
+        if(data.getProductos().isEmpty()) {
             setProductos();
         }
         return data.getProductos();
     }
 
     public static List<Cliente> getClientes() throws SQLException {
-        if (data.getClientes().isEmpty()) {
             setClientes();
-        }
         return data.getClientes();
     }
 
     public static List<Pedido> getPedidos() throws SQLException {
-        if (data.getPedidos().isEmpty()) {
             setPedidos();
-        }
         return data.getPedidos();
     }
 
     public static List<DetallePedido> getDetallesPedido() throws SQLException {
-        if (data.getDetallesPedido().isEmpty()) {
             setPedidos();
-        }
         return data.getDetallesPedido();
     }
 
     public static List<DetalleCliente> getDetallesCliente() throws SQLException {
-        if (data.getDetallesCliente().isEmpty()) {
             setClientes();
-        }
         return data.getDetallesCliente();
     }
 
@@ -55,7 +46,6 @@ public class AlmacenData {
 
         List<Producto> nuevosDatos = dao.findAll();
         // Limpiamos y recargar
-        data.getProductos().clear();
         data.setProductos(nuevosDatos);
         System.out.println("✅ Productos recargados en memoria.");
 

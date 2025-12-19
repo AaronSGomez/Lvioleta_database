@@ -30,6 +30,7 @@ public class PedidoDAO {
     INNER JOIN cliente c ON p.cliente_id = c.id
     LEFT JOIN detalle_pedido dp ON p.id = dp.pedido_id
     GROUP BY p.id, p.cliente_id, p.fecha, c.nombre
+    ORDER BY p.id
     """;
 
     private static final String DELETE_SQL =
