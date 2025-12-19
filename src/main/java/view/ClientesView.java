@@ -13,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import model.DetalleCliente;
+import services.AlmacenData;
 import services.ClienteDetalle;
 
 import java.sql.SQLException;
@@ -23,18 +24,6 @@ import java.util.stream.Collectors;
 
 /**
  * Vista JavaFX para gestionar clientes.
- *
- * Versión preparada para trabajar más adelante con DetalleCliente,
- * pero de momento:
- *  - SOLO usa ClienteDAO (insert, findById, findAll).
- *  - La tabla muestra únicamente datos de Cliente (id, nombre, email).
- *  - Los campos de detalle (dirección, teléfono, notas) se muestran en el
- *    formulario, pero aún NO se guardan en BD.
- *
- * Cuando exista DetalleClienteDAO, podrás:
- *  - Cargar el detalle al seleccionar un cliente.
- *  - Guardar/actualizar detalle junto con el cliente.
- *  - Borrar detalle cuando borres un cliente.
  */
 public class ClientesView{
 
@@ -240,10 +229,10 @@ public class ClientesView{
     private void recargarDatos() {
         try {
             // 1) Cargar todos los clientes
-            List<Cliente> clientes = clienteDAO.findAll();
+            List<Cliente> clientes = AlmacenData.getClientes();
 
             // 2) Cargar todos los detalles
-            List<DetalleCliente> detalles = detalleClienteDAO.findAll();
+            List<DetalleCliente> detalles = AlmacenData.getDetallesCliente();
 
             // 3) Rellenar la caché id -> detalle
             cacheDetalles.clear();
@@ -386,17 +375,6 @@ public class ClientesView{
         }
     }
 
-    /**
-     * Borrar cliente seleccionado.
-     * De momento solo muestra un aviso con un TODO.
-     *
-     * Cuando implementéis ClienteDAO.deleteById(int id),
-     * se puede llamar aquí a ese método.
-     *
-     * Y cuando exista DetalleClienteDAO, sería buena idea borrar primero
-     * el detalle del cliente y luego el cliente (o usar ON DELETE CASCADE
-     * + transacción en un Service).
-     */
     private void borrarClienteSeleccionado() {
         Cliente sel = tabla.getSelectionModel().getSelectedItem();
         if (sel == null) {

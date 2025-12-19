@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import model.Cliente;
 import model.DetallePedido;
 import model.Pedido;
+import services.AlmacenData;
 import services.PedidoDetalle;
 
 import java.sql.SQLException;
@@ -357,7 +358,7 @@ public class PedidosView {
 
     private void recargarDatos() {
         try {
-            datosPedidos.setAll(pedidoDAO.findAll());
+            datosPedidos.setAll(AlmacenData.getPedidos());
         } catch (SQLException e) {
             mostrarError("Error recargando", e);
         }

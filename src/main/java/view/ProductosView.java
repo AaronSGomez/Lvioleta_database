@@ -10,6 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import model.Producto;
+import services.AlmacenData;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -149,7 +150,7 @@ public class ProductosView {
     private void recargarDatos() {
         try {
             // 1) Cargar todos los Productos
-            List<Producto> productos = productoDAO.findAll();
+            List<Producto> productos = AlmacenData.getProductos();
 
             // Refrescar la tabla  👈 AHORA SÍ
             datos.setAll(productos);
