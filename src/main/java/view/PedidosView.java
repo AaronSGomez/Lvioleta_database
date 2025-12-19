@@ -341,6 +341,7 @@ public class PedidosView {
                 mostrarInfo("Éxito", "Pedido y " + listaDetalles.size() + " líneas actualizadas correctamente.");
             }
 
+            AlmacenData.setPedidos();
             limpiarFormularioCompleto();
             recargarDatos();
 

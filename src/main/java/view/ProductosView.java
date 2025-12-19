@@ -231,6 +231,7 @@ public class ProductosView {
                                 "Más adelante aquí haremos UPDATE desde el Service.");
             }
 
+            AlmacenData.setProductos();
             recargarDatos();
             limpiarFormulario();
 

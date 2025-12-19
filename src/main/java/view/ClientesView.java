@@ -228,10 +228,7 @@ public class ClientesView{
      */
     private void recargarDatos() {
         try {
-            // 1) Cargar todos los clientes
             List<Cliente> clientes = AlmacenData.getClientes();
-
-            // 2) Cargar todos los detalles
             List<DetalleCliente> detalles = AlmacenData.getDetallesCliente();
 
             // 3) Rellenar la caché id -> detalle
@@ -240,7 +237,6 @@ public class ClientesView{
                 cacheDetalles.put(d.getId(), d);
             }
 
-            // 4) Refrescar la tabla  👈 AHORA SÍ
             datos.setAll(clientes);
 
         } catch (SQLException e) {
@@ -367,6 +363,7 @@ public class ClientesView{
                                 "Más adelante aquí haremos UPDATE desde el Service.");
             }
 
+            AlmacenData.setClientes();
             recargarDatos();
             limpiarFormulario();
 
