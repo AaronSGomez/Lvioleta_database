@@ -22,18 +22,24 @@ public class DetallePedidoDAO {
 
     private static final String SELECT_ALL_SQL =
             """
-            SELECT pedido_id, producto_id, cantidad, precio_unit
+            SELECT pedido_id, producto_id, p.nombre AS nombre_producto, cantidad, precio_unit
             FROM detalle_pedido
+            INNER JOIN producto p ON p.id = producto_id
             ORDER BY pedido_id, producto_id
             """;
 
     private static final String SELECT_BY_PEDIDO_SQL =
             """
-            SELECT pedido_id, producto_id, cantidad, precio_unit
+            SELECT pedido_id, producto_id,p.nombre AS nombre_producto, cantidad, precio_unit
             FROM detalle_pedido
+            INNER JOIN producto p ON p.id = producto_id
             WHERE pedido_id = ?
             ORDER BY producto_id
             """;
+
+    private static final String DELETE_SQL =
+            "DELETE FROM detalle_pedido WHERE pedido_id = ?";
+
 
     public void insert(DetallePedido dp) throws SQLException {
         try (Connection con = Db.getConnection();
@@ -56,28 +62,34 @@ public class DetallePedidoDAO {
              ResultSet rs = pst.executeQuery()) {
 
             while (rs.next()) {
-                out.add(mapRow(rs));
+              DetallePedido dp = new DetallePedido();
+              dp.setPedidoId(rs.getInt("pedido_id"));
+              dp.setProductoId(rs.getInt("producto_id"));
+              dp.setNombreProducto(rs.getString("nombre_producto"));
+              dp.setCantidad(rs.getInt("cantidad"));
+              dp.setPrecioUnit(rs.getDouble("precio_unit"));
+              out.add(dp);
             }
         }
-
         return out;
     }
 
     public List<DetallePedido> findById(int pedidoId) throws SQLException {
         List<DetallePedido> out = new ArrayList<>();
-
         try (Connection con = Db.getConnection();
-             PreparedStatement pst = con.prepareStatement(SELECT_BY_PEDIDO_SQL)) {
-
+             PreparedStatement pst = con.prepareStatement(SELECT_BY_PEDIDO_SQL);) {
             pst.setInt(1, pedidoId);
-
-            try (ResultSet rs = pst.executeQuery()) {
-                while (rs.next()) {
-                    out.add(mapRow(rs));
-                }
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                DetallePedido dp = new DetallePedido();
+                dp.setPedidoId(rs.getInt("pedido_id"));
+                dp.setProductoId(rs.getInt("producto_id"));
+                dp.setNombreProducto(rs.getString("nombre_producto"));
+                dp.setCantidad(rs.getInt("cantidad"));
+                dp.setPrecioUnit(rs.getDouble("precio_unit"));
+                out.add(dp);
             }
         }
-
         return out;
     }
 
@@ -90,6 +102,14 @@ public class DetallePedidoDAO {
                 stmt.setDouble(4, d.getPrecioUnit());
                 stmt.executeUpdate();
             }
+        }
+    }
+
+    public void deleteById(Integer idPedidoPadre) throws SQLException {
+        try (Connection con = Db.getConnection();
+        PreparedStatement pst = con.prepareStatement(DELETE_SQL)) {
+            pst.setInt(1, idPedidoPadre);
+            pst.executeUpdate();
         }
     }
 

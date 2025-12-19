@@ -13,12 +13,32 @@ public class Pedido {
     private Integer clienteId;         // FK a Cliente (lado N de 1:N)
     private LocalDate fecha;
 
+    //campos auxiliares no se guardan en tabla pedido
+    private String nombreCliente;
+    private double totalImporte;
+
     // N:M mediante filas en la tabla detalle_pedido
     private List<DetallePedido> lineas = new ArrayList<>();
 
     public Pedido() {}
     public Pedido(Integer id, Integer clienteId, LocalDate fecha) {
         this.id = id; this.clienteId = clienteId; this.fecha = fecha;
+    }
+
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public double getTotalImporte() {
+        return totalImporte;
+    }
+
+    public void setTotalImporte(double totalImporte) {
+        this.totalImporte = totalImporte;
     }
 
     public Integer getId() { return id; }

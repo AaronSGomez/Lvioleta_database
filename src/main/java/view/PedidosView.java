@@ -16,6 +16,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import model.Cliente;
 import model.DetallePedido;
 import model.Pedido;
 import services.PedidoDetalle;
@@ -86,16 +87,23 @@ public class PedidosView {
        ========================================================= */
 
     private void configurarTablaPedidos() {
+
         TableColumn<Pedido, Number> colId = new TableColumn<>("ID Pedido");
         colId.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getId()));
-
-        TableColumn<Pedido, Number> colCli = new TableColumn<>("Cliente ID");
-        colCli.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getClienteId()));
-
-        TableColumn<Pedido, String> colFec = new TableColumn<>("Fecha");
+        TableColumn<Pedido, Number> colIdCli = new TableColumn<>("ID Cliente");
+        colIdCli.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getClienteId()));
+        TableColumn<Pedido, String> colNomCli = new TableColumn<>("Nombre Cliente");
+        colNomCli.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombreCliente()));
+        TableColumn<Pedido, String> colFec = new TableColumn<>("Fecha Pedido");
         colFec.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFecha().toString()));
+        TableColumn<Pedido, Number> colTotal = new TableColumn<>("Cantidad Total (€)");
+        colTotal.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getTotalImporte()));
 
-        tablaPedidos.getColumns().addAll(colId, colCli, colFec);
+        // Formato moneda alineado a la derecha
+        colTotal.setStyle("-fx-alignment: CENTER-RIGHT;");
+
+        tablaPedidos.getColumns().clear();
+        tablaPedidos.getColumns().addAll(colId, colIdCli, colNomCli, colFec, colTotal);
         tablaPedidos.setItems(datosPedidos);
     }
 
@@ -106,19 +114,24 @@ public class PedidosView {
         TableColumn<DetallePedido, Number> colProd = new TableColumn<>("Producto ID");
         colProd.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getProductoId()));
 
+        TableColumn<DetallePedido, String> colNomProd = new TableColumn<>("Producto ");
+        colNomProd.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombreProducto()));
+
         TableColumn<DetallePedido, Number> colCant = new TableColumn<>("Cantidad");
         colCant.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getCantidad()));
 
         TableColumn<DetallePedido, Number> colPre = new TableColumn<>("Precio Unit.");
         colPre.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getPrecioUnit()));
+        colPre.setStyle("-fx-alignment: CENTER-RIGHT;");
 
-        // Columna calculada (opcional) para ver el subtotal
+        // Columna calculada para ver el subtotal
         TableColumn<DetallePedido, Number> colTotal = new TableColumn<>("Subtotal");
         colTotal.setCellValueFactory(c -> new SimpleDoubleProperty(
                 c.getValue().getCantidad() * c.getValue().getPrecioUnit()
         ));
+        colTotal.setStyle("-fx-alignment: CENTER-RIGHT;");
 
-        tablaDetalles.getColumns().addAll(colProd, colCant, colPre, colTotal);
+        tablaDetalles.getColumns().addAll(colProd, colNomProd, colCant, colPre, colTotal);
 
         // Ajustamos altura para que no ocupe demasiado si está vacía
         tablaDetalles.setPrefHeight(200);
@@ -126,8 +139,8 @@ public class PedidosView {
 
     private void configurarLayoutCentral() {
         // Un VBox que contiene ambas tablas apiladas
-        VBox vBox = new VBox(10);
-        vBox.setPadding(new Insets(10));
+        VBox panelIzquierdo = new VBox(10);
+        panelIzquierdo.setPadding(new Insets(10));
 
         Label lblPedidos = new Label("1. Lista de Pedidos (Selecciona uno para ver/editar)");
         Label lblDetalles = new Label("2. Detalles del Pedido (Productos)");
@@ -135,8 +148,8 @@ public class PedidosView {
         // Hacemos que la tabla de pedidos crezca más
         VBox.setVgrow(tablaPedidos, Priority.ALWAYS);
 
-        vBox.getChildren().addAll(lblPedidos, tablaPedidos, new Separator(), lblDetalles, tablaDetalles);
-        root.setCenter(vBox);
+        panelIzquierdo.getChildren().addAll(lblPedidos, tablaPedidos, new Separator(), lblDetalles, tablaDetalles);
+        root.setCenter(panelIzquierdo);
     }
 
     /* =========================================================
@@ -144,51 +157,60 @@ public class PedidosView {
        ========================================================= */
 
     private void configurarFormulario() {
-        GridPane form = new GridPane();
-        form.setPadding(new Insets(10));
-        form.setHgap(10); form.setVgap(10);
-
-        // SECCIÓN PEDIDO
-        form.add(new Label("PEDIDOS"), 0, 0, 2, 1);
+       //definimos panel derecho con 400 pixels
+        VBox panelDerecho = new VBox(20);
+        panelDerecho.setPadding(new Insets(10));
+        panelDerecho.setPrefWidth(400);
+       //botones globales arriba
+        VBox botonesGlobal= new VBox(10,btnNuevo,btnGuardar,btnBorrar,btnRecargar);
+        botonesGlobal.getChildren().forEach(node -> ((Button)node).setMaxWidth(Double.MAX_VALUE));
+        //busqueda a continuacion
+        VBox bloqueBusqueda = new VBox(5,
+                new Label("Búsqueda:"),
+                txtBuscar,
+                new HBox(5, btnBuscar, btnLimpiarBusqueda)
+        );
+        //Formulario pedidos
+        GridPane formPedidos = new GridPane();
+        formPedidos.setHgap(10);
+        formPedidos.setVgap(10);
 
         txtId.setPromptText("ID Auto/Manual");
         txtClienteId.setPromptText("ID Cliente");
 
-        form.add(new Label("ID Pedido:"), 0, 1); form.add(txtId, 1, 1);
-        form.add(new Label("Cliente ID:"), 0, 2); form.add(txtClienteId, 1, 2);
-        form.add(new Label("Fecha:"), 0, 3); form.add(txtFecha, 1, 3);
-
-        // Lo ponemos al lado (columna 3 en adelante)
-        form.add(new Separator(javafx.geometry.Orientation.VERTICAL), 2, 0, 1, 4); // Separador visual
-
-        form.add(new Label("AÑADIR PRODUCTO (En Memoria)"), 3, 0, 2, 1);
-
+        formPedidos.add(new Label("PEDIDOS"), 0, 0, 2, 1);
+        formPedidos.add(new Label("ID Pedido:"), 0, 1); formPedidos.add(txtId, 1, 1);
+        formPedidos.add(new Label("Cliente ID:"), 0, 2); formPedidos.add(txtClienteId, 1, 2);
+        formPedidos.add(new Label("Fecha:"), 0, 3); formPedidos.add(txtFecha, 1, 3);
+        //Formulario productos
+        GridPane formDetalle = new GridPane();
+        formDetalle.setHgap(10); formDetalle.setVgap(10);
+        formDetalle.add(new Label("LÍNEA DE PRODUCTO"), 0, 0, 2, 1);
+        formDetalle.add(new Label("ID Prod:"), 0, 1); formDetalle.add(txtProductoId, 1, 1);
+        formDetalle.add(new Label("Cant:"), 0, 2); formDetalle.add(txtCantidad, 1, 2);
+        formDetalle.add(new Label("Precio/u:"), 0, 3); formDetalle.add(txtPrecioU, 1, 3);
         txtProductoId.setPromptText("ID Prod");
         txtCantidad.setPromptText("Cant");
-        txtPrecioU.setPromptText("Precio");
-
-        form.add(new Label("Producto ID:"), 3, 1); form.add(txtProductoId, 4, 1);
-        form.add(new Label("Cantidad:"), 3, 2); form.add(txtCantidad, 4, 2);
-        form.add(new Label("Precio U.:"), 3, 3); form.add(txtPrecioU, 4, 3);
+        txtPrecioU.setPromptText("Precio/unidad");
 
         // Botones de agregar/quitar detalle
         HBox botonesDetalle = new HBox(10, btnAgregarDetalle, btnQuitarDetalle);
-        botonesDetalle.setAlignment(Pos.CENTER_RIGHT);
-        form.add(botonesDetalle, 3, 4, 2, 1);
+        formDetalle.add(botonesDetalle, 3, 4, 2, 1);
 
-        // BOTONERA PRINCIPAL (Abajo del todo)
-        HBox busqueda = new HBox(10, new Label("Buscar:"), txtBuscar, btnBuscar, btnLimpiarBusqueda);
-        HBox accionesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
-        accionesCrud.setAlignment(Pos.CENTER_RIGHT);
+        panelDerecho.getChildren().addAll(
+                botonesGlobal,
+                new Separator(),
+                bloqueBusqueda,
+                new Separator(),
+                formPedidos,
+                new Separator(),
+                formDetalle,botonesDetalle
+        );
 
-        VBox bottomContainer = new VBox(10, form, new Separator(), busqueda, accionesCrud);
-        bottomContainer.setPadding(new Insets(10));
-
-        root.setBottom(bottomContainer);
+        root.setRight(panelDerecho);
     }
 
     private void configurarEventos() {
-
         // SELECCIÓN EN TABLA PEDIDOS
         tablaPedidos.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
@@ -301,9 +323,15 @@ public class PedidosView {
             }
 
             // TRANSACCIÓN
-            pedidoService.guardarPedidoCompleto(pedido, listaDetalles);
+            Pedido existente= pedidoDAO.findById(idPedido);
+            if (existente == null) {
+                pedidoService.insertPedidoCompleto(pedido, listaDetalles);
+                mostrarInfo("Éxito", "Pedido y " + listaDetalles.size() + " líneas guardados correctamente.");
 
-            mostrarInfo("Éxito", "Pedido y " + listaDetalles.size() + " líneas guardados correctamente.");
+            }else{
+                pedidoService.updatePedidoCompleto(pedido, listaDetalles);
+                mostrarInfo("Éxito", "Pedido y " + listaDetalles.size() + " líneas actualizadas correctamente.");
+            }
 
             limpiarFormularioCompleto();
             recargarDatos();
@@ -354,6 +382,10 @@ public class PedidosView {
         tablaDetalles.getItems().clear();
         tablaPedidos.getSelectionModel().clearSelection();
     }
+
+    /*===================
+    *       AVISOS
+    * ===================*/
 
     private void mostrarError(String titulo, Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

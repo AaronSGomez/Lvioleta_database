@@ -325,12 +325,6 @@ public class ClientesView{
     /**
      * Guardar cliente:
      *  - Si no existe en la BD → INSERT usando ClienteDAO.insert()
-     *  - Si existe → por ahora solo muestra un aviso.
-     *
-     * NOTA:
-     *  - Los datos de detalle (dirección, teléfono, notas) todavía NO se guardan.
-     *  - Cuando tengáis DetalleClienteDAO y/o ClienteService, aquí se podrá:
-     *      * insertar/actualizar también el detalle en una transacción.
      */
     private void guardarCliente() {
         // Con ID manual, vuelve a ser obligatorio

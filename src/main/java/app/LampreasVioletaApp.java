@@ -32,7 +32,7 @@ public class LampreasVioletaApp extends Application {
         tabPane.getTabs().add(cliente);
         tabPane.getTabs().add(producto);
         tabPane.getTabs().add(pedido);
-        Scene scene = new Scene(tabPane, 900, 600);
+        Scene scene = new Scene(tabPane, 1300, 800);
         stage.setScene(scene);
         stage.show();
     }
