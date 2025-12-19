@@ -127,6 +127,7 @@ public class ClientesView{
         tabla.getColumns().addAll(colId, colNombre, colEmail,
                 colDireccion, colTelefono, colNotas);
         tabla.setItems(datos);
+        tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         root.setCenter(tabla);
     }

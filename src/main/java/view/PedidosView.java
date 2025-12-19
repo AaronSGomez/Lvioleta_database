@@ -105,6 +105,7 @@ public class PedidosView {
         tablaPedidos.getColumns().clear();
         tablaPedidos.getColumns().addAll(colId, colIdCli, colNomCli, colFec, colTotal);
         tablaPedidos.setItems(datosPedidos);
+        tablaPedidos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     private void configurarTablaDetalles() {
@@ -132,6 +133,7 @@ public class PedidosView {
         colTotal.setStyle("-fx-alignment: CENTER-RIGHT;");
 
         tablaDetalles.getColumns().addAll(colProd, colNomProd, colCant, colPre, colTotal);
+        tablaDetalles.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // Ajustamos altura para que no ocupe demasiado si está vacía
         tablaDetalles.setPrefHeight(200);
