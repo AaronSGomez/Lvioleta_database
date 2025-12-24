@@ -4,14 +4,16 @@ public class EmpresaReparto {
 
     private int id;
     private String razonSocial;
-    private String telefone;
+    private String direccion;
+    private String telefono;
 
     //constructor
-    public EmpresaReparto(int id, String razonSocial, String telefone) {
+    public EmpresaReparto(int id, String razonSocial, String telefono) {
         this.id = id;
         this.razonSocial = razonSocial;
-        this.telefone = telefone;
+        this.telefono = telefono;
     }
+    public EmpresaReparto() {}
 
     //getter y setter
     public int getId() {
@@ -30,17 +32,19 @@ public class EmpresaReparto {
         this.razonSocial = razonSocial;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getTelefono() {
+        return telefono;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
+    public void setTelefono(String telefono) {this.telefono = telefono;}
+
+    public String getDireccion() {return direccion;}
+
+    public void setDireccion(String direccion) {this.direccion = direccion;}
 
     @Override
     public String toString() {
-        return  "Repartidor{id=%d, nombre=%s, telefono=%s}"
-                .formatted(id, razonSocial, telefone);
+        return  "Repartidor{id=%d, nombre=%s, direccion=%s, telefono=%s}"
+                .formatted(id, razonSocial,direccion, telefono);
     }
 }
