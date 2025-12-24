@@ -8,10 +8,11 @@ public class EmpresaReparto {
     private String telefono;
 
     //constructor
-    public EmpresaReparto(int id, String razonSocial, String telefono) {
+    public EmpresaReparto(int id, String razonSocial, String telefono,  String direccion) {
         this.id = id;
         this.razonSocial = razonSocial;
         this.telefono = telefono;
+        this.direccion = direccion;
     }
     public EmpresaReparto() {}
 

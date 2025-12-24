@@ -13,7 +13,7 @@ public class Repartidor {
         this.telefono = telefono;
         this.empresa_id = empresa_id;
     }
-
+    public Repartidor() {}
 
     //getter y setter
     public int getId() {

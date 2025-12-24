@@ -210,7 +210,7 @@ public class AdminLogisticaView {
             if (newVal != null) {
                 // 1. Rellenar formulario Empresa
                 txtEmId.setText(String.valueOf(newVal.getId()));
-                txtRazonS.setText(newVal.getNombre());
+                txtRazonS.setText(newVal.getRazonSocial());
                 txtEmTelefono.setText(newVal.getTelefono());
                 txtDireccion.setText(newVal.getDireccion());
 
