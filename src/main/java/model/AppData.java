@@ -19,6 +19,9 @@ public class AppData {
     private List<Producto> productos = new ArrayList<>();
     private List<Pedido> pedidos = new ArrayList<>();
     private List<DetallePedido> detallesPedido = new ArrayList<>();
+    private List<EmpresaReparto> empresasReparto = new ArrayList<>();
+    private List<Repartidor> repartidor = new ArrayList<>();
+    private List<Envio>  envio = new ArrayList<>();
 
     public AppData() { }
 
@@ -36,4 +39,13 @@ public class AppData {
 
     public List<DetallePedido> getDetallesPedido() { return detallesPedido; }
     public void setDetallesPedido(List<DetallePedido> detallesPedido) { this.detallesPedido = detallesPedido; }
+
+    public List<EmpresaReparto> getEmpresasReparto() { return empresasReparto; }
+    public void setEmpresasReparto(List<EmpresaReparto> empresasReparto) { this.empresasReparto = empresasReparto;}
+
+    public List<Repartidor> getRepartidor() { return repartidor; }
+    public void setRepartidor(List<Repartidor> repartidor) { this.repartidor = repartidor; }
+
+    public List<Envio> getEnvio() { return envio; }
+    public void setEnvio(List<Envio> envio) { this.envio = envio; }
 }
