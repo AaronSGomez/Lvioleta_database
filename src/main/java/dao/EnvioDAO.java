@@ -24,17 +24,18 @@ public class EnvioDAO {
     private static final String SELECT_BASE =
             """
             SELECT e.id, e.pedido_id, e.repartidor_id, e.fecha_salida, e.numero_seguimiento, e.estado,
-                   r.nombre AS nombre_repartidor, r.telefono AS telefono_repartidor,
+                   r.nombre AS nombre_repartidor, 
+                   r.telefono AS telefono_repartidor,
                    er.nombre AS nombre_empresa,
                    c.nombre AS nombre_cliente,      
-                   c.direccion AS direccion_cliente 
+                   d.direccion AS direccion_cliente 
             FROM envio e
             INNER JOIN repartidor r ON e.repartidor_id = r.id
             INNER JOIN empresa_reparto er ON r.empresa_id = er.id
             INNER JOIN pedido p ON e.pedido_id = p.id     
-            INNER JOIN cliente c ON p.cliente_id = c.id   
+            INNER JOIN cliente c ON p.cliente_id = c.id
+            LEFT JOIN detalle_cliente d ON c.id = d.id   
             """;
-
     private static final String SELECT_ALL_SQL = SELECT_BASE + " ORDER BY e.id";
 
     // Vital para la interfaz: buscar el envío de un pedido concreto
