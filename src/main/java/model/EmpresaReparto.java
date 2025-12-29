@@ -14,6 +14,11 @@ public class EmpresaReparto {
         this.telefono = telefono;
         this.direccion = direccion;
     }
+    public EmpresaReparto(String razonSocial, String telefono,  String direccion) {
+        this.razonSocial = razonSocial;
+        this.telefono = telefono;
+        this.direccion = direccion;
+    }
     public EmpresaReparto() {}
 
     //getter y setter

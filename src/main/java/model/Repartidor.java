@@ -13,6 +13,13 @@ public class Repartidor {
         this.telefono = telefono;
         this.empresa_id = empresa_id;
     }
+
+    public Repartidor(String nombre, String telefono, int empresa_id) {
+        this.nombre = nombre;
+        this.telefono = telefono;
+        this.empresa_id = empresa_id;
+    }
+
     public Repartidor() {}
 
     //getter y setter

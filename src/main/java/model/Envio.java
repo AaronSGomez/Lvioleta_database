@@ -17,6 +17,10 @@ public class Envio {
     private String nombreEmpresa; // Útil saber si es DHL o SEUR
     private String telefonoRepartidor;
 
+    // NUEVOS CAMPOS AUXILIARES (Para la vista)
+    private String nombreCliente;
+    private String direccionCliente;
+
     //Cosntructor
     public Envio(int id, int pedidoId, int repartidorId, Date fechaSalida) {
         this.id = id;
@@ -98,4 +102,12 @@ public class Envio {
     public void setTelefonoRepartidor(String telefonoRepartidor) {
         this.telefonoRepartidor = telefonoRepartidor;
     }
+
+    public String getNombreCliente() { return nombreCliente; }
+
+    public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
+
+    public String getDireccionCliente() { return direccionCliente; }
+
+    public void setDireccionCliente(String direccionCliente) { this.direccionCliente = direccionCliente; }
 }

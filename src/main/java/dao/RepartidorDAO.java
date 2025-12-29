@@ -12,8 +12,8 @@ public class RepartidorDAO {
     private static final String INSERT_SQL =
             """
             INSERT INTO repartidor
-            (id, nombre, telefono, empresa_id)
-            VALUES (?, ?, ?, ?)
+            (nombre, telefono, empresa_id)
+            VALUES (?, ?, ?)
             """;
 
     private static final String SELECT_ALL_SQL =
@@ -27,9 +27,8 @@ public class RepartidorDAO {
 
     private static final String SELECT_BY_EMPRESA_SQL =
             """
-            SELECT id, empresa_id, em.nombre AS razonsocial, em.telefono AS telefono_empresa, telefono AS telefono_repartidor
+            SELECT *
             FROM repartidor
-            INNER JOIN empresa_reparto em ON em.id = empresa_id
             WHERE empresa_id = ?
             ORDER BY id
             """;
@@ -47,13 +46,22 @@ public class RepartidorDAO {
 
     public void insert(Repartidor r) throws SQLException {
         try (Connection con = Db.getConnection();
-             PreparedStatement pst = con.prepareStatement(INSERT_SQL);){
-            pst.setInt(1, r.getId());
-            pst.setString(2, r.getNombre());
-            pst.setString(3, r.getTelefono());
-            pst.setInt(4,r.getEmpresaId());
+             PreparedStatement pst = con.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+            pst.setString(1, r.getNombre());
+            pst.setString(2, r.getTelefono());
+            pst.setInt(3, r.getEmpresaId());
 
             pst.executeUpdate();
+
+
+            //recuperar id generado
+            try (ResultSet rs = pst.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int nuevoId = rs.getInt(1); // El primer campo es el ID generado
+                    r.setId(nuevoId);  // ¡Actualizamos el objeto Java!
+                    System.out.println("Repartidor insertado con ID: " + nuevoId);
+                }
+            }
         }
     }
 
@@ -106,7 +114,7 @@ public class RepartidorDAO {
             List <Repartidor> lista = new ArrayList<>();
             pst.setInt(1, id);
             try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     lista.add(mapRow(rs));
                 }
                 return lista;

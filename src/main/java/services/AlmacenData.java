@@ -47,6 +47,26 @@ public class AlmacenData {
         return data.getDetallesCliente();
     }
 
+    public static List<Repartidor> getRepartidores() throws SQLException {
+        if(data.getRepartidor().isEmpty()) {
+            setRepartidores();
+        }
+        return data.getRepartidor();
+    }
+    public static List<EmpresaReparto> getEmpresasReparto() throws SQLException {
+        if(data.getEmpresaReparto().isEmpty()) {
+            setEmpresasReparto();
+        }
+        return data.getEmpresaReparto();
+    }
+
+    public static List<Envio> getEnvios() throws SQLException {
+        if(data.getEnvio().isEmpty()) {
+            setEnvios();
+        }
+        return data.getEnvio();
+    }
+
     //Setter
 
     public static void setProductos() throws SQLException {
@@ -82,6 +102,34 @@ public class AlmacenData {
         data.setDetallesPedido(detallePedidos);
         System.out.println("✅ Pedidos y Detalles recargados en memoria.");
     }
+
+    public static void setRepartidores() throws SQLException {
+        RepartidorDAO dao = new RepartidorDAO();
+        List<Repartidor> nuevosDatos = dao.findAll();
+
+        // Limpiar y recargar
+        data.setRepartidor(nuevosDatos);
+        System.out.println("✅ Repartidores recargados en memoria.");
+    }
+
+    public static void setEmpresasReparto() throws SQLException {
+        EmpresaRepartoDAO dao = new EmpresaRepartoDAO();
+        List<EmpresaReparto> nuevosDatos = dao.findAll();
+
+        // Limpiar y recargar
+        data.setEmpresaReparto(nuevosDatos);
+        System.out.println("✅ Empresas reparto recargadas en memoria.");
+    }
+
+    public static void setEnvios() throws SQLException {
+        EnvioDAO dao = new EnvioDAO();
+        List<Envio> nuevosDatos = dao.findAll();
+
+        // Limpiar y recargar
+        data.setEnvio(nuevosDatos);
+        System.out.println("✅ Envios recargadas en memoria.");
+    }
+
 
 
     // Método para acceder al objeto completo (para Exportar a JSON)

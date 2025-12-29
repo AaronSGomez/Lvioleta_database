@@ -10,8 +10,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import model.AppData;
 import model.EmpresaReparto;
 import model.Repartidor;
+import services.AlmacenData;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -274,7 +276,7 @@ public class AdminLogisticaView {
 
     private void recargarDatos() {
         try {
-            List<EmpresaReparto> lista = empresaRepartoDAO.findAll();
+            List<EmpresaReparto> lista = AlmacenData.getEmpresasReparto();
             datosEmpresas.setAll(lista);
         } catch (SQLException e) {
             mostrarError("Error cargando empresas", e);
@@ -315,6 +317,8 @@ public class AdminLogisticaView {
                 empresaRepartoDAO.update(emp);
                 mostrarInfo("Éxito", "Empresa actualizada.");
             }
+
+            AlmacenData.setEmpresasReparto();
             recargarDatos();
             limpiarFormularioEmpresa();
 
@@ -327,8 +331,8 @@ public class AdminLogisticaView {
         if (txtEmId.getText().isBlank()) return;
         try {
             int id = Integer.parseInt(txtEmId.getText());
-            // OJO: Si borras empresa, los repartidores se quedan sin empresa (set null) o se borran según tu SQL
             empresaRepartoDAO.delete(id);
+            AlmacenData.setEmpresasReparto();
             recargarDatos();
             limpiarFormularioEmpresa();
             mostrarInfo("Borrado", "Empresa eliminada.");
@@ -365,6 +369,7 @@ public class AdminLogisticaView {
             }
 
             // Recargamos solo la tabla de abajo
+            AlmacenData.setRepartidores();
             cargarRepartidores(rep.getEmpresaId());
             limpiarFormularioRepartidor(false);
 
@@ -380,6 +385,7 @@ public class AdminLogisticaView {
             int idEmp = Integer.parseInt(txtEmpresaId.getText()); // Para recargar luego
 
             repartidorDAO.delete(id);
+            AlmacenData.setRepartidores();
             cargarRepartidores(idEmp);
             limpiarFormularioRepartidor(false);
 

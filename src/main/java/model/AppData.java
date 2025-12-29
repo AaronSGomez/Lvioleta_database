@@ -40,8 +40,8 @@ public class AppData {
     public List<DetallePedido> getDetallesPedido() { return detallesPedido; }
     public void setDetallesPedido(List<DetallePedido> detallesPedido) { this.detallesPedido = detallesPedido; }
 
-    public List<EmpresaReparto> getEmpresasReparto() { return empresasReparto; }
-    public void setEmpresasReparto(List<EmpresaReparto> empresasReparto) { this.empresasReparto = empresasReparto;}
+    public List<EmpresaReparto> getEmpresaReparto() { return empresasReparto; }
+    public void setEmpresaReparto(List<EmpresaReparto> empresasReparto) { this.empresasReparto = empresasReparto;}
 
     public List<Repartidor> getRepartidor() { return repartidor; }
     public void setRepartidor(List<Repartidor> repartidor) { this.repartidor = repartidor; }

@@ -17,6 +17,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import model.DetallePedido;
+import model.Envio;
 import model.Pedido;
 import model.Producto;
 import services.AlmacenData;
@@ -33,11 +34,10 @@ public class PedidosView {
 
     // --- TABLAS ---
     private final TableView<Pedido> tablaPedidos = new TableView<>();
-    private TableView<DetallePedido> tablaDetalles; // Se inicializa en configurarTablaDetalles
+    private TableView<DetallePedido> tablaDetalles;
 
     // Lista observable para la tabla principal (Pedidos)
     private final ObservableList<Pedido> datosPedidos = FXCollections.observableArrayList();
-    // La lista de detalles se gestionará directamente con tablaDetalles.getItems()
 
     // DAOS Y SERVICIOS
     private final PedidoDAO pedidoDAO = new PedidoDAO();
@@ -55,15 +55,15 @@ public class PedidosView {
     private final TextField txtPrecioU = new TextField();
 
     // BOTONES
-    // Acciones sobre DETALLES (En memoria)
     private final Button btnAgregarDetalle = new Button("Añadir Línea (+)");
     private final Button btnQuitarDetalle = new Button("Quitar Línea (-)");
 
-    // Acciones GLOBALES (Base de Datos)
+    // Acciones GLOBALES
     private final Button btnNuevo = new Button("Nuevo Pedido");
     private final Button btnGuardar = new Button("GUARDAR TODO (Transacción)");
     private final Button btnBorrar = new Button("Borrar Pedido");
     private final Button btnRecargar = new Button("Recargar");
+    private final Button btnGestionarEnvio = new Button("🚚 Gestión Envío");
 
     // Búsqueda
     private final TextField txtBuscar = new TextField();
@@ -72,8 +72,8 @@ public class PedidosView {
 
     public PedidosView() {
         configurarTablaPedidos();
-        configurarTablaDetalles(); // Configuramos la segunda tabla
-        configurarLayoutCentral(); // Unimos las dos tablas visualmente
+        configurarTablaDetalles();
+        configurarLayoutCentral();
         configurarComboProductos();
         configurarFormulario();
         configurarEventos();
@@ -89,19 +89,20 @@ public class PedidosView {
        ========================================================= */
 
     private void configurarTablaPedidos() {
-
         TableColumn<Pedido, Number> colId = new TableColumn<>("ID Pedido");
         colId.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getId()));
+
         TableColumn<Pedido, Number> colIdCli = new TableColumn<>("ID Cliente");
         colIdCli.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getClienteId()));
+
         TableColumn<Pedido, String> colNomCli = new TableColumn<>("Nombre Cliente");
         colNomCli.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombreCliente()));
+
         TableColumn<Pedido, String> colFec = new TableColumn<>("Fecha Pedido");
         colFec.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFecha().toString()));
+
         TableColumn<Pedido, Number> colTotal = new TableColumn<>("Cantidad Total (€)");
         colTotal.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getTotalImporte()));
-
-        // Formato moneda alineado a la derecha
         colTotal.setStyle("-fx-alignment: CENTER-RIGHT;");
 
         tablaPedidos.getColumns().clear();
@@ -114,20 +115,19 @@ public class PedidosView {
         tablaDetalles = new TableView<>();
         tablaDetalles.setPlaceholder(new Label("Sin detalles. Añade productos abajo."));
 
-        TableColumn<DetallePedido, Number> colProd = new TableColumn<>("Producto ID");
+        TableColumn<DetallePedido, Number> colProd = new TableColumn<>("ID Prod");
         colProd.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getProductoId()));
 
-        TableColumn<DetallePedido, String> colNomProd = new TableColumn<>("Producto ");
+        TableColumn<DetallePedido, String> colNomProd = new TableColumn<>("Producto");
         colNomProd.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombreProducto()));
 
-        TableColumn<DetallePedido, Number> colCant = new TableColumn<>("Cantidad");
+        TableColumn<DetallePedido, Number> colCant = new TableColumn<>("Cant.");
         colCant.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getCantidad()));
 
-        TableColumn<DetallePedido, Number> colPre = new TableColumn<>("Precio Unit.");
+        TableColumn<DetallePedido, Number> colPre = new TableColumn<>("Precio U.");
         colPre.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getPrecioUnit()));
         colPre.setStyle("-fx-alignment: CENTER-RIGHT;");
 
-        // Columna calculada para ver el subtotal
         TableColumn<DetallePedido, Number> colTotal = new TableColumn<>("Subtotal");
         colTotal.setCellValueFactory(c -> new SimpleDoubleProperty(
                 c.getValue().getCantidad() * c.getValue().getPrecioUnit()
@@ -136,20 +136,16 @@ public class PedidosView {
 
         tablaDetalles.getColumns().addAll(colProd, colNomProd, colCant, colPre, colTotal);
         tablaDetalles.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        // Ajustamos altura para que no ocupe demasiado si está vacía
         tablaDetalles.setPrefHeight(200);
     }
 
     private void configurarLayoutCentral() {
-        // Un VBox que contiene ambas tablas apiladas
         VBox panelIzquierdo = new VBox(10);
         panelIzquierdo.setPadding(new Insets(10));
 
-        Label lblPedidos = new Label("1. Lista de Pedidos (Selecciona uno para ver/editar)");
-        Label lblDetalles = new Label("2. Detalles del Pedido (Productos)");
+        Label lblPedidos = new Label("1. Lista de Pedidos");
+        Label lblDetalles = new Label("2. Detalles del Pedido");
 
-        // Hacemos que la tabla de pedidos crezca más
         VBox.setVgrow(tablaPedidos, Priority.ALWAYS);
 
         panelIzquierdo.getChildren().addAll(lblPedidos, tablaPedidos, new Separator(), lblDetalles, tablaDetalles);
@@ -161,68 +157,61 @@ public class PedidosView {
        ========================================================= */
 
     private void configurarFormulario() {
-       //definimos panel derecho con 400 pixels
         VBox panelDerecho = new VBox(20);
         panelDerecho.setPadding(new Insets(10));
         panelDerecho.setPrefWidth(400);
-       //botones globales arriba
-        VBox botonesGlobal= new VBox(10,btnNuevo,btnGuardar,btnBorrar,btnRecargar);
+
+        VBox botonesGlobal = new VBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar, btnGestionarEnvio);
         botonesGlobal.getChildren().forEach(node -> ((Button)node).setMaxWidth(Double.MAX_VALUE));
-        //busqueda a continuacion
+
         VBox bloqueBusqueda = new VBox(5,
                 new Label("Búsqueda:"),
                 txtBuscar,
                 new HBox(5, btnBuscar, btnLimpiarBusqueda)
         );
-        //Formulario pedidos
+
+        // Formulario pedidos
         GridPane formPedidos = new GridPane();
-        formPedidos.setHgap(10);
-        formPedidos.setVgap(10);
+        formPedidos.setHgap(10); formPedidos.setVgap(10);
 
         txtId.setPromptText("ID Auto/Manual");
         txtClienteId.setPromptText("ID Cliente");
 
-        formPedidos.add(new Label("PEDIDOS"), 0, 0, 2, 1);
+        formPedidos.add(new Label("DATOS PEDIDO"), 0, 0, 2, 1);
         formPedidos.add(new Label("ID Pedido:"), 0, 1); formPedidos.add(txtId, 1, 1);
         formPedidos.add(new Label("Cliente ID:"), 0, 2); formPedidos.add(txtClienteId, 1, 2);
         formPedidos.add(new Label("Fecha:"), 0, 3); formPedidos.add(txtFecha, 1, 3);
-        //Formulario productos
+
+        // Formulario productos
         GridPane formDetalle = new GridPane();
         formDetalle.setHgap(10); formDetalle.setVgap(10);
-        formDetalle.add(new Label("LÍNEA DE PRODUCTO"), 0, 0, 2, 1);
-        formDetalle.add(new Label("ID Prod:"), 0, 1); formDetalle.add(comboProducto, 1, 1);
+        formDetalle.add(new Label("AÑADIR PRODUCTO"), 0, 0, 2, 1);
+        formDetalle.add(new Label("Producto:"), 0, 1); formDetalle.add(comboProducto, 1, 1);
         formDetalle.add(new Label("Cant:"), 0, 2); formDetalle.add(txtCantidad, 1, 2);
         formDetalle.add(new Label("Precio/u:"), 0, 3); formDetalle.add(txtPrecioU, 1, 3);
 
         txtCantidad.setPromptText("Cant");
         txtPrecioU.setPromptText("Precio/unidad");
 
-        // Botones de agregar/quitar detalle
         HBox botonesDetalle = new HBox(10, btnAgregarDetalle, btnQuitarDetalle);
-        formDetalle.add(botonesDetalle, 3, 4, 2, 1);
+        formDetalle.add(botonesDetalle, 0, 4, 2, 1);
 
         panelDerecho.getChildren().addAll(
-                botonesGlobal,
-                new Separator(),
-                bloqueBusqueda,
-                new Separator(),
-                formPedidos,
-                new Separator(),
-                formDetalle,botonesDetalle
+                botonesGlobal, new Separator(),
+                bloqueBusqueda, new Separator(),
+                formPedidos, new Separator(),
+                formDetalle
         );
-
         root.setRight(panelDerecho);
     }
 
     private void configurarEventos() {
-        // TABLA PEDIDOS
         tablaPedidos.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
                 cargarPedidoEnFormulario(newSel);
             }
         });
 
-        // AGREGAR DETALLE (CORREGIDO PARA USAR COMBO)
         btnAgregarDetalle.setOnAction(e -> agregarDetalleEnMemoria());
 
         btnQuitarDetalle.setOnAction(e -> {
@@ -234,23 +223,81 @@ public class PedidosView {
             }
         });
 
-        // BOTONES GLOBALES
         btnNuevo.setOnAction(e -> limpiarFormularioCompleto());
         btnGuardar.setOnAction(e -> guardarTransaccionCompleta());
         btnBorrar.setOnAction(e -> borrarPedidoActual());
         btnRecargar.setOnAction(e -> { txtBuscar.clear(); recargarDatos(); });
+
+        // --- LOGICA GESTIÓN ENVÍO ---
+        btnGestionarEnvio.setOnAction(e -> {
+            Pedido seleccionado = tablaPedidos.getSelectionModel().getSelectedItem();
+
+            if (seleccionado == null) {
+                mostrarAlerta("Atención", "Selecciona un pedido de la lista primero.");
+                return;
+            }
+
+            EnvioDialog dialog = new EnvioDialog(seleccionado.getId());
+
+            dialog.showAndWait().ifPresent(guardadoExitoso -> {
+                if (guardadoExitoso) {
+                    try {
+                        // 1. FORZAMOS LA ACTUALIZACIÓN DE LA MEMORIA DE ENVÍOS
+                        AlmacenData.setEnvios();
+
+                        // 2. Refrescamos el formulario actual para que se bloquee visualmente
+                        cargarPedidoEnFormulario(seleccionado);
+
+                        mostrarInfo("Logística", "Envío gestionado. El pedido ahora está bloqueado.");
+
+                    } catch (SQLException ex) {
+                        mostrarError("Error actualizando caché", ex);
+                    }
+                }
+            });
+        });
+
         btnBuscar.setOnAction(e -> buscarPedidos());
         btnLimpiarBusqueda.setOnAction(e -> { txtBuscar.clear(); recargarDatos(); });
     }
 
+    /* =========================================================
+       LÓGICA DE CARGA Y BLOQUEO
+       ========================================================= */
+
     private void cargarPedidoEnFormulario(Pedido p) {
-        // Cargar Cabecera
+        // 1. Cargar Cabecera
         txtId.setText(String.valueOf(p.getId()));
         txtClienteId.setText(String.valueOf(p.getClienteId()));
         txtFecha.setValue(p.getFecha());
-        txtId.setDisable(true); // Bloqueamos ID al editar
+        txtId.setDisable(true); // ID bloqueado siempre al editar
 
-        // Cargar Detalles desde BBDD
+        // 2. LÓGICA DE BLOQUEO (Consulta a AlmacenData)
+        try {
+            List<Envio> todosLosEnvios = AlmacenData.getEnvios();
+
+            // Buscamos si este pedido tiene envío
+            Envio envioEncontrado = todosLosEnvios.stream()
+                    .filter(e -> e.getPedidoId() == p.getId())
+                    .findFirst()
+                    .orElse(null);
+
+            if (envioEncontrado != null) {
+                // ¡TIENE ENVÍO! -> BLOQUEAR TODO
+                setModoEdicion(false);
+                mostrarInfo("Solo Lectura",
+                        "Pedido en estado: " + envioEncontrado.getEstado() +
+                                ". No se puede modificar.");
+            } else {
+                // NO TIENE ENVÍO -> PERMITIR EDICIÓN
+                setModoEdicion(true);
+            }
+
+        } catch (SQLException e) {
+            mostrarError("Error comprobando envíos", e);
+        }
+
+        // 3. Cargar Detalles
         try {
             List<DetallePedido> detalles = detallePedidoDAO.findById(p.getId());
             if (detalles != null) {
@@ -263,8 +310,48 @@ public class PedidosView {
         }
     }
 
+    // --- EL MÉTODO QUE TE FALTABA ---
+    private void setModoEdicion(boolean activo) {
+        // Si activo es true -> Botones habilitados (false disable)
+        // Si activo es false -> Botones deshabilitados (true disable)
+        boolean desactivar = !activo;
+
+        btnGuardar.setDisable(desactivar);
+        btnBorrar.setDisable(desactivar);
+        btnAgregarDetalle.setDisable(desactivar);
+        btnQuitarDetalle.setDisable(desactivar);
+
+        comboProducto.setDisable(desactivar);
+        txtCantidad.setDisable(desactivar);
+        txtPrecioU.setDisable(desactivar);
+
+        // También bloqueamos los campos de cabecera si está enviado
+        txtClienteId.setDisable(desactivar);
+        txtFecha.setDisable(desactivar);
+    }
+
+    private void limpiarFormularioCompleto() {
+        txtId.clear();
+        txtClienteId.clear();
+        txtFecha.setValue(LocalDate.now());
+
+        // IMPORTANTE: Al crear nuevo, desbloqueamos todo
+        setModoEdicion(true);
+        txtId.setDisable(false); // Permitimos escribir ID si es manual
+
+        comboProducto.getSelectionModel().clearSelection();
+        txtCantidad.clear();
+        txtPrecioU.clear();
+
+        tablaDetalles.getItems().clear();
+        tablaPedidos.getSelectionModel().clearSelection();
+    }
+
+    /* =========================================================
+       CRUD Y OTROS MÉTODOS
+       ========================================================= */
+
     private void agregarDetalleEnMemoria() {
-        // 1. Validar selección del combo
         Producto prodSeleccionado = comboProducto.getValue();
 
         if (prodSeleccionado == null || txtCantidad.getText().isBlank() || txtPrecioU.getText().isBlank()) {
@@ -274,30 +361,23 @@ public class PedidosView {
 
         try {
             int cant = Integer.parseInt(txtCantidad.getText().trim());
-            // Usamos el precio del TextField por si el usuario lo editó manualmente
             double precio = Double.parseDouble(txtPrecioU.getText().trim());
 
-            // ID Pedido temporal (0 si es nuevo, o el ID actual si estamos editando)
             int currentPedidoId = 0;
             if (!txtId.getText().isBlank()) {
                 currentPedidoId = Integer.parseInt(txtId.getText());
             }
 
-            // CREAR OBJETO
             DetallePedido nuevoDetalle = new DetallePedido(
                     currentPedidoId,
-                    prodSeleccionado.getId(), // ID desde el objeto Combo
+                    prodSeleccionado.getId(),
                     cant,
                     precio
             );
-
-            // IMPORTANTE: Rellenamos el campo auxiliar "Nombre" para que se vea en la tabla
             nuevoDetalle.setNombreProducto(prodSeleccionado.getNombre());
 
-            // AÑADIR A LA TABLA VISUAL
             tablaDetalles.getItems().add(nuevoDetalle);
 
-            // LIMPIAR CAMPOS DETALLE
             comboProducto.getSelectionModel().clearSelection();
             txtCantidad.clear();
             txtPrecioU.clear();
@@ -310,12 +390,11 @@ public class PedidosView {
 
     private void guardarTransaccionCompleta() {
         if (txtId.getText().isBlank() || txtClienteId.getText().isBlank() || txtFecha.getValue() == null) {
-            mostrarAlerta("Faltan datos", "Debes rellenar la cabecera del pedido (ID, Cliente, Fecha).");
+            mostrarAlerta("Faltan datos", "Rellena ID, Cliente y Fecha.");
             return;
         }
 
         try {
-            // Recoger datos Pedido
             int idPedido = Integer.parseInt(txtId.getText());
             int idCliente = Integer.parseInt(txtClienteId.getText());
             LocalDate fecha = txtFecha.getValue();
@@ -324,22 +403,20 @@ public class PedidosView {
             List<DetallePedido> listaDetalles = new ArrayList<>(tablaDetalles.getItems());
 
             if (listaDetalles.isEmpty()) {
-                mostrarAlerta("Pedido vacío", "No puedes guardar un pedido sin productos.");
+                mostrarAlerta("Pedido vacío", "No puedes guardar sin productos.");
                 return;
             }
 
-            // TRANSACCIÓN
-            Pedido existente= pedidoDAO.findById(idPedido);
+            Pedido existente = pedidoDAO.findById(idPedido);
             if (existente == null) {
                 pedidoService.insertPedidoCompleto(pedido, listaDetalles);
-                mostrarInfo("Éxito", "Pedido y " + listaDetalles.size() + " líneas guardados correctamente.");
-
-            }else{
+                mostrarInfo("Éxito", "Pedido guardado.");
+            } else {
                 pedidoService.updatePedidoCompleto(pedido, listaDetalles);
-                mostrarInfo("Éxito", "Pedido y " + listaDetalles.size() + " líneas actualizadas correctamente.");
+                mostrarInfo("Éxito", "Pedido actualizado.");
             }
 
-            AlmacenData.setPedidos();
+            AlmacenData.setPedidos(); // Refrescar memoria
             limpiarFormularioCompleto();
             recargarDatos();
 
@@ -355,9 +432,7 @@ public class PedidosView {
     private void borrarPedidoActual() {
         Pedido sel = tablaPedidos.getSelectionModel().getSelectedItem();
         if (sel == null) return;
-
-        // Lógica de borrado (Pendiente implementar deleteById en DAO)
-        mostrarInfo("Info", "Aquí llamarías a pedidoService.borrarPedido(" + sel.getId() + ")");
+        mostrarInfo("Info", "Funcionalidad borrar pendiente de implementar en DAO.");
     }
 
     private void recargarDatos() {
@@ -378,23 +453,20 @@ public class PedidosView {
 
     private void configurarComboProductos() {
         try {
-            // 1. Cargar lista desde Almacén
             List<Producto> lista = AlmacenData.getProductos();
             comboProducto.setItems(FXCollections.observableArrayList(lista));
 
-            // 2. Converter para ver Nombre (Precio)
             comboProducto.setConverter(new StringConverter<Producto>() {
                 @Override
                 public String toString(Producto p) {
                     if (p == null) return null;
-                    return p.getNombre();
+                    return p.getNombre() + " (" + p.getPrecio() + " €)";
                 }
 
                 @Override
                 public Producto fromString(String string) { return null; }
             });
 
-            // 3. Listener para poner precio automático
             comboProducto.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal != null) {
                     txtPrecioU.setText(String.valueOf(newVal.getPrecio()));
@@ -405,24 +477,6 @@ public class PedidosView {
             mostrarError("Error cargando productos", e);
         }
     }
-
-    private void limpiarFormularioCompleto() {
-        txtId.clear();
-        txtClienteId.clear();
-        txtFecha.setValue(LocalDate.now());
-        txtId.setDisable(false);
-
-        comboProducto.getSelectionModel().clearSelection();
-        txtCantidad.clear();
-        txtPrecioU.clear();
-
-        tablaDetalles.getItems().clear();
-        tablaPedidos.getSelectionModel().clearSelection();
-    }
-
-    /*===================
-    *       AVISOS
-    * ===================*/
 
     private void mostrarError(String titulo, Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

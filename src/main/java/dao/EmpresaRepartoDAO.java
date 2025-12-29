@@ -3,10 +3,7 @@ package dao;
 import db.Db;
 import model.EmpresaReparto;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +12,8 @@ public class EmpresaRepartoDAO {
     private static final String INSERT_SQL =
             """
             INSERT INTO empresa_reparto
-            (id, nombre, telefono, direccion)
-            VALUES (?, ?, ?, ?)
+            (nombre, telefono, direccion)
+            VALUES (?, ?, ?)
             """;
 
     private static final String SELECT_ALL_SQL =
@@ -42,13 +39,20 @@ public class EmpresaRepartoDAO {
 
     public void insert(EmpresaReparto r) throws SQLException {
         try (Connection con = Db.getConnection();
-             PreparedStatement pst = con.prepareStatement(INSERT_SQL);){
-            pst.setInt(1, r.getId());
-            pst.setString(2, r.getRazonSocial());
-            pst.setString(3, r.getTelefono());
-            pst.setString(4,r.getDireccion());
+             PreparedStatement pst = con.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);){
+            pst.setString(1, r.getRazonSocial());
+            pst.setString(2, r.getTelefono());
+            pst.setString(3,r.getDireccion());
 
             pst.executeUpdate();
+
+            //recuperar id generado
+            try (ResultSet rs = pst.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int nuevoId = rs.getInt(1); // El primer campo es el ID generado
+                    r.setId(nuevoId);  // ¡Actualizamos el objeto Java!
+                }
+            }
         }
     }
 
