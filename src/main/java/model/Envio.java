@@ -12,12 +12,12 @@ public class Envio {
     private String numeroSeguimiento;
     private String estado; // "EN_REPARTO", "ENTREGADO"...por defecto en reparto, solo se crea envio si se envia, sino deberia crear almacen y controlar stock
 
-    // Campos AUXILIARES (Para la Vista) - No se guardan en tabla 'envio'
+    // TODO los campos direccion y nombre de cliente  y empresa, no deben ser modificables en envio, persistencia de datos.
+    // Campos AUXILIARES
     private String nombreRepartidor;
     private String nombreEmpresa; // Útil saber si es DHL o SEUR
     private String telefonoRepartidor;
-
-    // NUEVOS CAMPOS AUXILIARES (Para la vista)
+    // NUEVOS CAMPOS AUXILIARES
     private String nombreCliente;
     private String direccionCliente;
 
