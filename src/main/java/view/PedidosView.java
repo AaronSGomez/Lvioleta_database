@@ -478,6 +478,23 @@ public class PedidosView {
         }
     }
 
+    public void refresh() {
+        try {
+            //  Recuperar las listas de la Memoria (AlmacenData)
+            List<Pedido> lista = AlmacenData.getPedidos();
+
+            // Actualizar los datos de la tabla
+            // Usamos 'datos.setAll' porque 'tabla' ya está vinculada a 'datos' en el constructor
+            datosPedidos.setAll(lista);
+
+            // 4. Forzar repintado visual
+            tablaPedidos.refresh();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void mostrarError(String titulo, Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");

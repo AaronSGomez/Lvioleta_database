@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import model.Cliente;
+import model.DetalleCliente;
 import model.Producto;
 import services.AlmacenData;
 
@@ -264,6 +266,22 @@ public class ProductosView {
 
     }
 
+    public void refresh() {
+        try {
+            //  Recuperar las listas de la Memoria (AlmacenData)
+            List<Producto> lista = AlmacenData.getProductos();
+
+            // Actualizar los datos de la tabla
+            // Usamos 'datos.setAll' porque 'tabla' ya está vinculada a 'datos' en el constructor
+            datos.setAll(lista);
+
+            // 4. Forzar repintado visual
+            tabla.refresh();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 /* =========================================================
        DIÁLOGOS AUXILIARES
        ========================================================= */

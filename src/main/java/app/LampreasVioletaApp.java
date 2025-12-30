@@ -8,7 +8,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.AppData;
 import services.AlmacenData;
-//import services.DataRestoreService;
 import services.JsonService;
 import view.*;
 
@@ -22,6 +21,13 @@ public class LampreasVioletaApp extends Application {
 
     // El botón "nuclear" lo definimos aquí para habilitarlo/deshabilitarlo
     private MenuItem itemRestaurarBD;
+
+    //  INSTANCIAMOS LAS VISTAS
+    private ClientesView vistaClientes;
+    private ProductosView vistaProductos;
+    private PedidosView vistaPedidos;
+    private AdminLogisticaView vistaReparto; // o como se llame tu clase
+    private EnvioView vistaEnvio;
 
     @Override
     public void start(Stage stage) {
@@ -43,11 +49,11 @@ public class LampreasVioletaApp extends Application {
         Tab envio = new Tab(" Envios");
 
         // Instanciamos las vistas
-        ClientesView vistaClientes = new ClientesView();
-        ProductosView vistaProductos = new ProductosView();
-        PedidosView vistaPedidos = new PedidosView();
-        AdminLogisticaView vistaReparto = new AdminLogisticaView();
-        EnvioView vistaEnvio = new EnvioView();
+        vistaClientes = new ClientesView();
+        vistaProductos = new ProductosView();
+        vistaPedidos = new PedidosView();
+        vistaReparto = new AdminLogisticaView();
+        vistaEnvio = new EnvioView();
 
         cliente.setContent(vistaClientes.getRoot());
         producto.setContent(vistaProductos.getRoot());
@@ -108,7 +114,7 @@ public class LampreasVioletaApp extends Application {
         root.setTop(menuBar);
     }
 
-    // --- 1. EXPORTAR ---
+    // --- EXPORTAR --- ESTO YA FUNCIONA PERFECTAMENTE
     private void accionExportar() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Guardar Copia de Seguridad");
@@ -128,7 +134,7 @@ public class LampreasVioletaApp extends Application {
         }
     }
 
-    // --- 2. IMPORTAR (SOLO MEMORIA) ---
+    // --- IMPORTAR (SOLO MEMORIA) ---
     private void accionImportar() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Cargar Copia de Seguridad");
@@ -138,20 +144,24 @@ public class LampreasVioletaApp extends Application {
 
         if (file != null) {
             try {
-                // Cargamos el JSON
-               // AppData datosCargados = JsonService.cargarJson(file);
+                // LEER JSON
+                AppData datosCargados = JsonService.importarJson(file);
 
-                // Sobrescribimos la memoria RAM (AlmacenData)
-                //AlmacenData.setAppData(datosCargados);
+                // Esto reemplaza los datos que "ve" la aplicación
+                AlmacenData.setAppData(datosCargados);
 
-                // HABILITAMOS EL BOTÓN DE GUARDAR EN BD
+                // Activar el botón de guardar en BD y avisar
                 itemRestaurarBD.setDisable(false);
 
-                mostrarInfo("Datos Cargados en Memoria",
-                        "Se han cargado los datos del archivo JSON para visualización.\n\n" +
-                                "⚠️ NOTA: La base de datos SQL NO ha cambiado aún.\n" +
-                                "Si quieres hacer estos cambios permanentes, ve a 'Archivo > GUARDAR EN BD'.\n" +
-                                "Pulsa el botón 'Recargar' en las pestañas para ver los datos.");
+                // Cargamos datos en memoria y actualizamos vista con datos de memoria
+                if (vistaClientes != null) vistaClientes.refresh();
+                if (vistaProductos != null) vistaProductos.refresh();
+                if (vistaPedidos != null) vistaPedidos.refresh();
+
+                mostrarInfo("Memoria Actualizada",
+                        "Datos cargados visualmente.\n" +
+                                "La base de datos SQL sigue intacta.\n" +
+                                "Si quieres guardar estos cambios permanentemente, usa la opción 'Guardar en BD'.");
 
             } catch (Exception e) {
                 mostrarError("Error al importar", e);
@@ -159,7 +169,7 @@ public class LampreasVioletaApp extends Application {
         }
     }
 
-    // --- 3. RESTAURAR BD (PELIGROSO) ---
+    // --- RESTAURAR BD (PELIGROSO) ---
     private void accionRestaurarBD() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("PELIGRO - Restauración de Base de Datos");
@@ -170,18 +180,12 @@ public class LampreasVioletaApp extends Application {
                         "Esta acción no se puede deshacer.");
 
         if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            /*try {
-                DataRestoreService service = new DataRestoreService();
-                service.restaurarBaseDeDatosDesdeMemoria();
+           /*
+           aqui llamo JsonService para importar todo a la base de datos directamente con el metodo
+           insertJson cogiendo los datos cargados en AlmacenData
 
-                mostrarInfo("Restauración Completada", "La base de datos ha sido actualizada correctamente.");
-
-                // Volvemos a deshabilitar el botón por seguridad
-                itemRestaurarBD.setDisable(true);
-
-            } catch (SQLException ex) {
-                mostrarError("Error crítico en restauración", ex);
-            }*/
+           TODO: DEJAR LISTOS LOS REFRESH, Cambiar metodo de consulta detalles pedido y repartidores
+           */
         }
     }
 

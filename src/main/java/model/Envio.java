@@ -21,13 +21,16 @@ public class Envio {
     private String nombreCliente;
     private String direccionCliente;
 
-    //Constructor
+    //Constructores
     public Envio(int id, int pedidoId, int repartidorId, Date fechaSalida) {
         this.id = id;
         this.pedidoId = pedidoId;
         this.repartidorId = repartidorId;
         this.fechaSalida = fechaSalida;
         this.estado = "EN PREPARACION";
+    }
+
+    public Envio() {
     }
 
     //getter y setter

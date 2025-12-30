@@ -1,5 +1,7 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Fila de un pedido: une un Pedido con un Producto + cantidad + precio.
  * PK compuesta (pedido_id, producto_id) en la BBDD.
@@ -31,6 +33,7 @@ public class DetallePedido {
     public double getPrecioUnit() { return precioUnit; }
     public void setPrecioUnit(double precioUnit) { this.precioUnit = precioUnit; }
 
+    @JsonIgnore
     public double getImporte() { return cantidad * precioUnit; }
 
     public String getNombreProducto() { return nombreProducto; }

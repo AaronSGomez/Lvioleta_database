@@ -278,7 +278,6 @@ public class ClientesView{
         }
     }
 
-
     private void buscarClientesEnBBDD(){
         String filtro = txtBuscar.getText().trim();
 
@@ -397,6 +396,33 @@ public class ClientesView{
 
 
     }
+
+    public void refresh() {
+        try {
+            // 1. Recuperar las listas de la Memoria (AlmacenData)
+            List<Cliente> listaClientes = AlmacenData.getClientes();
+            List<DetalleCliente> listaDetalles = AlmacenData.getDetallesCliente();
+
+            // 2. CRUCIAL: Actualizar la caché (El diccionario ID -> Detalle)
+            // Si no haces esto, las columnas de dirección/teléfono no sabrán qué pintar
+            cacheDetalles.clear();
+            for (DetalleCliente d : listaDetalles) {
+                // Asumimos que d.getId() es igual al id del Cliente (PK compartida)
+                cacheDetalles.put(d.getId(), d);
+            }
+
+            // 3. Actualizar los datos de la tabla
+            // Usamos 'datos.setAll' porque 'tabla' ya está vinculada a 'datos' en el constructor
+            datos.setAll(listaClientes);
+
+            // 4. Forzar repintado visual
+            tabla.refresh();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /* =========================================================
        DIÁLOGOS AUXILIARES
