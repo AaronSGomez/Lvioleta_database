@@ -248,7 +248,7 @@ public class EnvioView {
             // 2. Llamamos al DAO para actualizar
             // Nota: envioDAO.update actualiza todos los campos, pero como
             // el objeto tiene los datos cargados de la BD, no perdemos nada.
-            dao.update(envioSeleccionado);
+            dao.updateEstado(envioSeleccionado);
 
             mostrarInfo("Éxito", "Estado actualizado a: " + nuevoEstado);
             AlmacenData.setEnvios();

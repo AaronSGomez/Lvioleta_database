@@ -10,7 +10,7 @@ public class Envio {
     private int repartidorId;
     private Date fechaSalida;
     private String numeroSeguimiento;
-    private String estado; // "EN_REPARTO", "ENTREGADO"...por defecto en reparto, solo se crea envio si se envia, sino deberia crear almacen y controlar stock
+    private String estado; // "EN_REPARTO", "ENTREGADO"...por defecto en preparación, solo se crea envio si se envia, sino deberia crear almacen y controlar stock
 
     // TODO los campos direccion y nombre de cliente  y empresa, no deben ser modificables en envio, persistencia de datos.
     // Campos AUXILIARES
@@ -21,13 +21,13 @@ public class Envio {
     private String nombreCliente;
     private String direccionCliente;
 
-    //Cosntructor
+    //Constructor
     public Envio(int id, int pedidoId, int repartidorId, Date fechaSalida) {
         this.id = id;
         this.pedidoId = pedidoId;
         this.repartidorId = repartidorId;
         this.fechaSalida = fechaSalida;
-        this.estado = "EN REPARTO";
+        this.estado = "EN PREPARACION";
     }
 
     //getter y setter

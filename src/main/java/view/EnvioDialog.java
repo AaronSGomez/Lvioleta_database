@@ -1,8 +1,6 @@
 package view;
 
-import dao.EmpresaRepartoDAO;
-import dao.EnvioDAO;
-import dao.RepartidorDAO;
+import dao.*;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -11,6 +9,7 @@ import javafx.util.StringConverter;
 import model.EmpresaReparto;
 import model.Envio;
 import model.Repartidor;
+import services.AlmacenData;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -192,6 +191,7 @@ public class EnvioDialog extends Dialog<Boolean> {
     }
 
     private boolean guardarLogica() {
+        // 1. VALIDACIÓN BÁSICA DE FORMULARIO
         if (comboEmpresa.getValue() == null || comboRepartidor.getValue() == null) {
             mostrarError("Datos incompletos", new Exception("Debes seleccionar Empresa y Repartidor."));
             return false;
@@ -199,31 +199,92 @@ public class EnvioDialog extends Dialog<Boolean> {
 
         try {
             Repartidor rep = comboRepartidor.getValue();
+            EmpresaReparto emp = comboEmpresa.getValue();
             Date fecha = java.sql.Date.valueOf(dateSalida.getValue());
             String track = txtTracking.getText();
             String estado = comboEstado.getValue();
 
+            // 2. CREAR OBJETO ENVÍO (Temporal o Nuevo)
+            Envio envioTemp = new Envio(0, pedidoId, rep.getId(), fecha);
+            envioTemp.setNumeroSeguimiento(track);
+            envioTemp.setEstado(estado);
+
+            // 3. GENERAR SNAPSHOT LOGÍSTICO (Copia de nombres actuales)
+            envioTemp.setNombreRepartidor(rep.getNombre());
+            envioTemp.setTelefonoRepartidor(rep.getTelefono());
+            // Nota: Si en tu modelo es getRazonSocial(), úsalo. Aquí uso getNombre() por consistencia.
+            envioTemp.setNombreEmpresa(emp.getRazonSocial());
+
+            // 4. RECUPERAR DATOS DEL CLIENTE (Nombre y Dirección)
+            recuperarDatosClienteParaSnapshot(envioTemp);
+
+            // 5. VALIDACIÓN CRÍTICA: DIRECCIÓN DE ENTREGA
+            if (envioTemp.getDireccionCliente() == null || envioTemp.getDireccionCliente().isBlank()) {
+                mostrarError("Imposible realizar envío",
+                        new Exception("El cliente seleccionado no tiene una dirección de entrega configurada.\n" +
+                                "Por favor, edita la ficha del cliente y añade una dirección en 'Detalles'."));
+                return false;
+            }
+
+            // 6. PERSISTENCIA EN BASE DE DATOS
             if (envioExistente == null) {
-                // INSERT
-                Envio nuevo = new Envio(0, pedidoId, rep.getId(), fecha);
-                nuevo.setNumeroSeguimiento(track);
-                nuevo.setEstado(estado);
-                envioDAO.insert(nuevo);
+                // --- INSERTAR NUEVO (Guardamos la foto completa) ---
+                envioDAO.insert(envioTemp);
             } else {
-                // UPDATE
+                // --- ACTUALIZAR EXISTENTE ---
+                // Actualizamos los datos editables
                 envioExistente.setRepartidorId(rep.getId());
                 envioExistente.setFechaSalida(fecha);
                 envioExistente.setNumeroSeguimiento(track);
                 envioExistente.setEstado(estado);
-                envioDAO.update(envioExistente);
+                envioDAO.updateEstado(envioExistente);
             }
             return true;
 
         } catch (Exception e) {
-            mostrarError("Error guardando", e);
+            mostrarError("Error guardando el envío", e);
             return false;
         }
     }
+
+    /**
+     * Busca los datos del cliente usando AlmacenData (Memoria RAM)
+     * en lugar de hacer consultas SQL. Es mucho más rápido.
+     */
+    private void recuperarDatosClienteParaSnapshot(Envio envio) throws SQLException {
+        // 1. Buscar el Pedido en memoria
+        model.Pedido p = AlmacenData.getPedidos().stream()
+                .filter(ped -> ped.getId() == envio.getPedidoId())
+                .findFirst()
+                .orElse(null);
+
+        if (p == null) return; // No debería pasar
+
+        // 2. Buscar el Cliente en memoria usando el ID del pedido
+        model.Cliente c = AlmacenData.getClientes().stream()
+                .filter(cli -> cli.getId() == p.getClienteId())
+                .findFirst()
+                .orElse(null);
+
+        if (c != null) {
+            envio.setNombreCliente(c.getNombre());
+        }
+
+        // 3. Buscar el DetalleCliente en memoria
+        model.DetalleCliente dc = AlmacenData.getDetallesCliente().stream()
+                .filter(det -> det.getId() == p.getId())
+                .findFirst()
+                .orElse(null);
+
+        if (dc != null) {
+            envio.setDireccionCliente(dc.getDireccion());
+        } else {
+            envio.setDireccionCliente(""); // Vacío para que salte la validación
+        }
+    }
+
+
+
 
     private void configurarCombos() {
         // He movido la lógica de configuración aquí para tener el constructor limpio
