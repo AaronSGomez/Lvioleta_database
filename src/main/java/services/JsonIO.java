@@ -1,8 +1,8 @@
 package services;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule; // <--- 1. IMPORTANTE: Importar el módulo
 
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +15,20 @@ import java.io.IOException;
 public final class JsonIO {
 
     // ObjectMapper es el motor de Jackson: convierte Java <-> JSON
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT); // JSON "bonito" (pretty print)
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    // Bloque estático para configurar el mapper una sola vez al iniciar
+    static {
+        // 2. REGISTRAR EL MÓDULO DE FECHAS (Soluciona el error de "not supported")
+        MAPPER.registerModule(new JavaTimeModule());
+
+        // 3. CONFIGURACIÓN VISUAL
+        // Para que las fechas se guarden como "2023-10-25" y no como [2023, 10, 25]
+        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // Para que el JSON se vea bonito y ordenado (con sangrías)
+        MAPPER.enable(SerializationFeature.INDENT_OUTPUT);
+    }
 
     private JsonIO() { }
 

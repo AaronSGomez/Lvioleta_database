@@ -17,12 +17,14 @@ public class Pedido {
     private String nombreCliente;
     private double totalImporte;
 
-    // N:M mediante filas en la tabla detalle_pedido
-    private List<DetallePedido> lineas = new ArrayList<>();
+/*    // N:M mediante filas en la tabla detalle_pedido
+    private List<DetallePedido> lineas = new ArrayList<>();*/
 
     public Pedido() {}
     public Pedido(Integer id, Integer clienteId, LocalDate fecha) {
-        this.id = id; this.clienteId = clienteId; this.fecha = fecha;
+        this.id = id;
+        this.clienteId = clienteId;
+        this.fecha = fecha;
     }
 
     public String getNombreCliente() {
@@ -50,15 +52,15 @@ public class Pedido {
     public LocalDate getFecha() { return fecha; }
     public void setFecha(LocalDate fecha) { this.fecha = fecha; }
 
-    public List<DetallePedido> getLineas() { return lineas; }
+ /*   public List<DetallePedido> getLineas() { return lineas; }
     public void setLineas(List<DetallePedido> lineas) { this.lineas = lineas; }
 
     public double getTotal() {
         return lineas.stream().mapToDouble(DetallePedido::getImporte).sum();
-    }
+    }*/
 
     @Override public String toString() {
         return "Pedido{id=%d, clienteId=%d, fecha=%s, total=%.2f}"
-                .formatted(id, clienteId, fecha, getTotal());
+                .formatted(id, clienteId, fecha/*, getTotal()*/);
     }
 }

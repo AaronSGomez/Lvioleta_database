@@ -12,8 +12,6 @@ public class DetallePedido {
 
     //campos auziliares no se guardan en bd - solo para visualizacion de tablas
     private String nombreProducto;
-    private double precioTotal;
-
 
     public DetallePedido() {}
     public DetallePedido(Integer pedidoId, Integer productoId, int cantidad, double precioUnit) {
@@ -38,9 +36,6 @@ public class DetallePedido {
     public String getNombreProducto() { return nombreProducto; }
     public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
 
-    public double getPrecioTotal() {
-        return precioTotal;
-    }
 
     @Override public String toString() {
         return "Detalle{pedidoId=%d, prodId=%d, cant=%d, pUnit=%.2f, importe=%.2f}"
