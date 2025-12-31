@@ -14,6 +14,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 import model.Envio;
+import model.Producto;
 import services.AlmacenData;
 
 import java.sql.SQLException;
@@ -224,6 +225,23 @@ public class EnvioView {
 
         } catch (SQLException e) {
             mostrarError("Error cargando envíos", e);
+        }
+    }
+
+    public void refresh() {
+        try {
+            //  Recuperar las listas de la Memoria (AlmacenData)
+            List<Envio> lista = AlmacenData.getEnvios();
+
+            // Actualizar los datos de la tabla
+            // Usamos 'datos.setAll' porque 'tabla' ya está vinculada a 'datos' en el constructor
+            datos.setAll(lista);
+
+            // 4. Forzar repintado visual
+            tabla.refresh();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

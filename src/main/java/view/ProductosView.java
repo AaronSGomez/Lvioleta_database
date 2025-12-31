@@ -6,11 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import model.Cliente;
-import model.DetalleCliente;
+import javafx.scene.layout.*;
 import model.Producto;
 import services.AlmacenData;
 
@@ -72,16 +68,19 @@ public class ProductosView {
 
         tabla.getColumns().addAll(colId, colNombre, colPrecio);
         tabla.setItems(datos);
+        tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         root.setCenter(tabla);
     }
 
     private void configurarFormulario() {
+        VBox panelDerecho = new VBox(15);
         GridPane form = new GridPane();
-        form.setPadding(new Insets(10));
-        form.setHgap(10);
-        form.setVgap(10);
+        panelDerecho.setPadding(new Insets(10));
+        panelDerecho.setPrefWidth(500); // Ancho fijo para el panel derecho
+        panelDerecho.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #ddd;");
 
+        form.setHgap(10);form.setVgap(10);
         // ----- Cliente -----
         txtId.setPromptText("ID (entero)");
         txtNombre.setPromptText("Nombre");
@@ -103,12 +102,16 @@ public class ProductosView {
                 new Label("Buscar:"), txtBuscar, btnBuscar, btnLimpiarBusqueda);
         zonaBusqueda.setPadding(new Insets(10, 0, 10, 0));
 
-        BorderPane bottom = new BorderPane();
-        bottom.setTop(zonaBusqueda);
-        bottom.setCenter(form);
-        bottom.setBottom(botonesCrud);
+        panelDerecho.getChildren().addAll(
+                zonaBusqueda,
+                new Separator(),
+                form,
+                new Separator(),
+                botonesCrud,
+                new Separator()
+        );
 
-        root.setBottom(bottom);
+        root.setRight(panelDerecho);
     }
 
     private void configurarEventos() {
@@ -142,13 +145,6 @@ public class ProductosView {
         });
     }
 
-    /* =========================================================
-       LÓGICA DE NEGOCIO (usando ProductoDAO actual)
-       ========================================================= */
-
-    /**
-     * Carga todos los productos desde la BD usando ProductoDAO.findAll()
-     */
     private void recargarDatos() {
         try {
             // 1) Cargar todos los Productos
@@ -188,11 +184,6 @@ public class ProductosView {
         tabla.getSelectionModel().clearSelection();
     }
 
-    /**
-     * Guardar producto:
-     *  - Si no existe en la BD → INSERT usando ProductoDAO.insert()
-     *  - Si existe → por ahora solo muestra un aviso.
-     */
     private void guardarProducto() {
         // Con ID manual, vuelve a ser obligatorio
         if (txtId.getText().isBlank() ||

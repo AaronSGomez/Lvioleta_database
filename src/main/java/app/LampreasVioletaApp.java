@@ -157,6 +157,8 @@ public class LampreasVioletaApp extends Application {
                 if (vistaClientes != null) vistaClientes.refresh();
                 if (vistaProductos != null) vistaProductos.refresh();
                 if (vistaPedidos != null) vistaPedidos.refresh();
+                if (vistaReparto != null) vistaReparto.refresh();
+                if (vistaEnvio != null) vistaEnvio.refresh();
 
                 mostrarInfo("Memoria Actualizada",
                         "Datos cargados visualmente.\n" +

@@ -2,6 +2,8 @@ package view;
 
 import dao.ClienteDAO;
 import dao.DetalleClienteDAO;
+import javafx.geometry.Pos;
+import javafx.scene.layout.*;
 import model.Cliente;
 
 import javafx.collections.FXCollections;
@@ -9,9 +11,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import model.DetalleCliente;
 import services.AlmacenData;
 import services.ClienteDetalle;
@@ -120,51 +119,113 @@ public class ClientesView{
 
         root.setCenter(tabla);
     }
+
     private void configurarFormulario() {
-        GridPane form = new GridPane();
-        form.setPadding(new Insets(10));
-        form.setHgap(10);
-        form.setVgap(10);
-
-        // ----- Cliente -----
-        txtId.setPromptText("ID (entero)");
-        txtNombre.setPromptText("Nombre");
-        txtEmail.setPromptText("Email");
-
-        form.add(new Label("ID:"), 0, 0);
-        form.add(txtId, 1, 0);
-        form.add(new Label("Nombre:"), 0, 1);
-        form.add(txtNombre, 1, 1);
-        form.add(new Label("Email:"), 0, 2);
-        form.add(txtEmail, 1, 2);
-
-        // ----- DetalleCliente (solo UI, sin BD de momento) -----
-        txtDireccion.setPromptText("Dirección");
-        txtTelefono.setPromptText("Teléfono");
-        txtNotas.setPromptText("Notas");
-
-        form.add(new Label("Dirección:"), 0, 3);
-        form.add(txtDireccion, 1, 3);
-        form.add(new Label("Teléfono:"), 0, 4);
-        form.add(txtTelefono, 1, 4);
-        form.add(new Label("Notas:"), 0, 5);
-        form.add(txtNotas, 1, 5);
-
-        // Zona botones CRUD
-        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
-        botonesCrud.setPadding(new Insets(10, 0, 0, 0));
-
-        // Zona de búsqueda
+        // ZONA DE BÚSQUEDA
+        txtBuscar.setPrefWidth(300);
         HBox zonaBusqueda = new HBox(10,
-                new Label("Buscar:"), txtBuscar, btnBuscar, btnLimpiarBusqueda);
-        zonaBusqueda.setPadding(new Insets(10, 0, 10, 0));
+                new Label("🔍 Buscar:"), txtBuscar, btnBuscar, btnLimpiarBusqueda);
+        zonaBusqueda.setAlignment(Pos.CENTER_LEFT);
+        zonaBusqueda.setPadding(new Insets(0, 0, 10, 0));
 
-        BorderPane bottom = new BorderPane();
-        bottom.setTop(zonaBusqueda);
-        bottom.setCenter(form);
-        bottom.setBottom(botonesCrud);
+        // --- Lado Izquierdo: Datos del Cliente ---
+        GridPane gridCliente = new GridPane();
+        gridCliente.setHgap(10);
+        gridCliente.setVgap(10);
 
-        root.setBottom(bottom);
+        // Configuración de columnas internas
+        ColumnConstraints colLabels = new ColumnConstraints();
+        colLabels.setMinWidth(60);
+        ColumnConstraints colInputs = new ColumnConstraints();
+        colInputs.setHgrow(Priority.ALWAYS); // Que los inputs llenen su hueco
+        gridCliente.getColumnConstraints().addAll(colLabels, colInputs);
+
+        // Campos
+        txtId.setPromptText("Auto");
+        txtNombre.setPromptText("Nombre completo");
+        txtEmail.setPromptText("ejemplo@email.com");
+        txtNombre.setMaxWidth(Double.MAX_VALUE);
+        txtEmail.setMaxWidth(Double.MAX_VALUE);
+
+        gridCliente.add(new Label("ID:"), 0, 0);
+        gridCliente.add(txtId, 1, 0);
+        gridCliente.add(new Label("Nombre:"), 0, 1);
+        gridCliente.add(txtNombre, 1, 1);
+        gridCliente.add(new Label("Email:"), 0, 2);
+        gridCliente.add(txtEmail, 1, 2);
+
+        VBox ladoIzquierdo = new VBox(10);
+        Label lblTituloCliente = new Label("Datos Generales ");
+        lblTituloCliente.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        ladoIzquierdo.getChildren().addAll(lblTituloCliente, gridCliente);
+
+
+        // --- Lado Derecho: Detalles ---
+        GridPane gridDetalle = new GridPane();
+        gridDetalle.setHgap(10);
+        gridDetalle.setVgap(10);
+        gridDetalle.getColumnConstraints().addAll(colLabels, colInputs);
+
+        // Campos
+        txtDireccion.setPromptText("Calle, Número, Ciudad...");
+        txtTelefono.setPromptText("Teléfono fijo o móvil");
+        txtNotas.setPromptText("Observaciones...");
+        txtDireccion.setMaxWidth(Double.MAX_VALUE);
+        txtTelefono.setMaxWidth(Double.MAX_VALUE);
+        txtNotas.setMaxWidth(Double.MAX_VALUE);
+
+        gridDetalle.add(new Label("Dirección:"), 0, 0);
+        gridDetalle.add(txtDireccion, 1, 0);
+        gridDetalle.add(new Label("Teléfono:"), 0, 1);
+        gridDetalle.add(txtTelefono, 1, 1);
+        gridDetalle.add(new Label("Notas:"), 0, 2);
+        gridDetalle.add(txtNotas, 1, 2);
+
+        VBox ladoDerecho = new VBox(10);
+        Label lblTituloDetalle = new Label("Detalles de Contacto ");
+        lblTituloDetalle.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        ladoDerecho.getChildren().addAll(lblTituloDetalle, gridDetalle);
+
+        // ===============================================================
+        // EL CONTENEDOR MAESTRO (DIVISIÓN 35% / 65%)
+        // ===============================================================
+        GridPane splitContainer = new GridPane();
+        splitContainer.setHgap(40); // Espacio entre los dos bloques
+
+        // Definimos las columnas maestras con PORCENTAJES EXACTOS
+        ColumnConstraints colMasterLeft = new ColumnConstraints();
+        colMasterLeft.setPercentWidth(35); // <--- AQUÍ ESTÁ EL 35%
+
+        ColumnConstraints colMasterRight = new ColumnConstraints();
+        colMasterRight.setPercentWidth(65); // <--- AQUÍ ESTÁ EL 65%
+
+        splitContainer.getColumnConstraints().addAll(colMasterLeft, colMasterRight);
+
+        // Añadimos los paneles a sus columnas respectivas
+        splitContainer.add(ladoIzquierdo, 0, 0);
+        splitContainer.add(ladoDerecho, 1, 0);
+
+
+        // 4. ZONA BOTONES
+        HBox botonesCrud = new HBox(15, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
+        botonesCrud.setAlignment(Pos.CENTER);
+        botonesCrud.setPadding(new Insets(15, 0, 0, 0));
+        botonesCrud.getChildren().forEach(node -> ((Button)node).setPrefWidth(100));
+
+        // 5. LAYOUT FINAL
+        VBox layoutGlobal = new VBox(10);
+        layoutGlobal.setPadding(new Insets(20, 50, 20, 50));
+
+        layoutGlobal.getChildren().addAll(
+                zonaBusqueda,
+                new Separator(),
+                splitContainer,
+                new Separator(),
+                botonesCrud
+        );
+
+        BorderPane.setAlignment(layoutGlobal, Pos.CENTER);
+        root.setBottom(layoutGlobal);
     }
 
     private void configurarEventos() {
@@ -178,7 +239,11 @@ public class ClientesView{
                 txtId.setDisable(true); // al editar, de momento, no dejamos cambiar el ID
                 //DetalleCliente
                 try {
-                    DetalleCliente newDetalle = detalleClienteDAO.findById(newSel.getId());
+                    DetalleCliente newDetalle =
+                            AlmacenData.getDetallesCliente().stream()
+                            .filter(c -> c.getId() == newSel.getId())
+                            .findFirst()
+                            .orElse(null);
                     if (newDetalle != null) {
                         txtDireccion.setText(newDetalle.getDireccion());
                         txtTelefono.setText(newDetalle.getTelefono());
@@ -191,11 +256,6 @@ public class ClientesView{
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
-
-                // DetalleCliente (cuando exista DetalleClienteDAO se cargará desde BD)
-                // TODO: cuando implementéis DetalleClienteDAO, aquí:
-                //   - detalleDAO.findById(newSel.getId())
-                //   - rellenar txtDireccion, txtTelefono, txtNotas con sus valores
 
             }
         });
@@ -220,12 +280,9 @@ public class ClientesView{
     }
 
     /* =========================================================
-       LÓGICA DE NEGOCIO (usando ClienteDAO actual)
+       LÓGICA DE NEGOCIO
        ========================================================= */
 
-    /**
-     * Carga todos los clientes desde la BD usando ClienteDAO.findAll()
-     */
     private void recargarDatos() {
         try {
             List<Cliente> clientes = AlmacenData.getClientes();
@@ -244,15 +301,6 @@ public class ClientesView{
         }
     }
 
-
-
-    /**
-     * Búsqueda de momento hecha EN MEMORIA.
-     *
-     * Se carga toda la lista (findAll) y se filtra con streams.
-     * Más adelante se puede cambiar para que use ClienteDAO.search()
-     * cuando lo implementéis.
-     */
     private void buscarClientesEnMemoria() {
         String filtro = txtBuscar.getText().trim();
         if (filtro.isEmpty()) {
@@ -386,14 +434,9 @@ public class ClientesView{
             return;
         }
 
-        // TODO: implementar ClienteDAO.deleteById(int id) y llamarlo aquí.
-        // TODO futuro: cuando haya DetalleClienteDAO, borrar primero detalle,
-        //  después cliente, o delegarlo todo a ClienteService.deleteClienteCompleto(id).
-
         mostrarAlerta("Borrado pendiente",
                 "Aún no existe deleteById en ClienteDAO.\n" +
                         "Cuando lo implementemos, aquí se llamará al método.");
-
 
     }
 

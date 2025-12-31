@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PedidosView {
 
@@ -299,7 +300,12 @@ public class PedidosView {
 
         // 3. Cargar Detalles
         try {
-            List<DetallePedido> detalles = detallePedidoDAO.findById(p.getId());
+            //buscar en memoria almacen data, evitamos las conexiones constantes a la bd
+            List<DetallePedido> detalles =
+                    AlmacenData.getDetallesPedido().stream()
+                            .filter(d -> d.getPedidoId() == p.getId())
+                            .collect(Collectors.toList());
+
             if (detalles != null) {
                 tablaDetalles.setItems(FXCollections.observableArrayList(detalles));
             } else {

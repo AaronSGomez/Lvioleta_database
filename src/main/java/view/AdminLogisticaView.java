@@ -12,11 +12,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import model.AppData;
 import model.EmpresaReparto;
+import model.Producto;
 import model.Repartidor;
 import services.AlmacenData;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AdminLogisticaView {
 
@@ -285,8 +287,11 @@ public class AdminLogisticaView {
 
     private void cargarRepartidores(int idEmpresa) {
         try {
-            // Asumiendo que has creado este método en RepartidorDAO
-            List<Repartidor> lista = repartidorDAO.findByEmpresaId(idEmpresa);
+            // Llamar a los datos en memoria
+            List<Repartidor> lista = AlmacenData.getRepartidores().stream()
+                            .filter(r -> r.getEmpresaId() == idEmpresa)
+                                    .collect(Collectors.toList());
+
             tablaRepartidor.setItems(FXCollections.observableArrayList(lista));
         } catch (SQLException e) {
             mostrarError("Error cargando repartidores", e);
@@ -414,6 +419,24 @@ public class AdminLogisticaView {
         }
     }
 
+    public void refresh() {
+        try {
+            //  Recuperar las listas de la Memoria (AlmacenData)
+            List<EmpresaReparto> lista = AlmacenData.getEmpresasReparto();
+
+            // Actualizar los datos de la tabla
+            // Usamos 'datos.setAll' porque 'tabla' ya está vinculada a 'datos' en el constructor
+            datosEmpresas.setAll(lista);
+
+            // 4. Forzar repintado visual
+            tablaEmpresa.refresh();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // MENSAJES FLOTANTES
     private void mostrarError(String titulo, Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");

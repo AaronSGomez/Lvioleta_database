@@ -1,8 +1,5 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Entidad principal "Cliente".
  * Relaciones:
