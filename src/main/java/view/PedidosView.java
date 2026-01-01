@@ -160,7 +160,7 @@ public class PedidosView {
     private void configurarFormulario() {
         VBox panelDerecho = new VBox(20);
         panelDerecho.setPadding(new Insets(10));
-        panelDerecho.setPrefWidth(400);
+        panelDerecho.setPrefWidth(500);
 
         VBox botonesGlobal = new VBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar, btnGestionarEnvio);
         botonesGlobal.getChildren().forEach(node -> ((Button)node).setMaxWidth(Double.MAX_VALUE));
@@ -493,7 +493,8 @@ public class PedidosView {
             // Usamos 'datos.setAll' porque 'tabla' ya está vinculada a 'datos' en el constructor
             datosPedidos.setAll(lista);
 
-            // 4. Forzar repintado visual
+            // 4. Forzar repintado visual, llamamos a comboProductos tambien para qe cargue la lista
+            configurarComboProductos();
             tablaPedidos.refresh();
 
         } catch (SQLException e) {

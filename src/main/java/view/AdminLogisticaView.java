@@ -147,7 +147,7 @@ public class AdminLogisticaView {
     private void configurarFormulario() {
         VBox panelDerecho = new VBox(15);
         panelDerecho.setPadding(new Insets(10));
-        panelDerecho.setPrefWidth(320); // Ancho fijo para el panel derecho
+        panelDerecho.setPrefWidth(500); // Ancho fijo para el panel derecho
         panelDerecho.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #ddd;");
 
         // --- SECCIÓN EMPRESA ---
