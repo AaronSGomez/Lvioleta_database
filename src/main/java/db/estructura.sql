@@ -1,8 +1,9 @@
--- public.cliente definition
 
--- Drop table
+-- BORRA TODAS LAS TABLAS E INTRODUCE LA ESTRUCTURA NUEVA VACIA
 
--- DROP TABLE public.cliente;
+-- CLIENTE
+
+DROP TABLE IF EXISTS cliente CASCADE;
 
 CREATE TABLE public.cliente (
                                 id int4 NOT NULL,
@@ -12,12 +13,9 @@ CREATE TABLE public.cliente (
                                 CONSTRAINT cliente_pkey PRIMARY KEY (id)
 );
 
+-- EMPRESA REPARTO
 
--- public.empresa_reparto definition
-
--- Drop table
-
--- DROP TABLE public.empresa_reparto;
+DROP TABLE IF EXISTS empresa_reparto CASCADE;
 
 CREATE TABLE public.empresa_reparto (
                                         id serial4 NOT NULL,
@@ -28,11 +26,9 @@ CREATE TABLE public.empresa_reparto (
 );
 
 
--- public.producto definition
+-- PRODUCTO
 
--- Drop table
-
--- DROP TABLE public.producto;
+DROP TABLE IF EXISTS producto CASCADE;
 
 CREATE TABLE public.producto (
                                  id int4 NOT NULL,
@@ -43,11 +39,9 @@ CREATE TABLE public.producto (
 );
 
 
--- public.detalle_cliente definition
+-- DETALLE CLIENTE
 
--- Drop table
-
--- DROP TABLE public.detalle_cliente;
+DROP TABLE IF EXISTS detalle_cliente CASCADE;
 
 CREATE TABLE public.detalle_cliente (
                                         id int4 NOT NULL,
@@ -59,11 +53,9 @@ CREATE TABLE public.detalle_cliente (
 );
 
 
--- public.pedido definition
+-- PEDIDO
 
--- Drop table
-
--- DROP TABLE public.pedido;
+DROP TABLE IF EXISTS pedido CASCADE;
 
 CREATE TABLE public.pedido (
                                id int4 NOT NULL,
@@ -74,11 +66,9 @@ CREATE TABLE public.pedido (
 );
 
 
--- public.repartidor definition
+-- REPARTIDOR
 
--- Drop table
-
--- DROP TABLE public.repartidor;
+DROP TABLE IF EXISTS repartidor CASCADE;
 
 CREATE TABLE public.repartidor (
                                    id serial4 NOT NULL,
@@ -90,11 +80,9 @@ CREATE TABLE public.repartidor (
 );
 
 
--- public.detalle_pedido definition
+-- DETALLE PEDIDO
 
--- Drop table
-
--- DROP TABLE public.detalle_pedido;
+DROP TABLE IF EXISTS detalle_pedido CASCADE;
 
 CREATE TABLE public.detalle_pedido (
                                        pedido_id int4 NOT NULL,
@@ -109,11 +97,9 @@ CREATE TABLE public.detalle_pedido (
 );
 
 
--- public.envio definition
+-- ENVIO
 
--- Drop table
-
--- DROP TABLE public.envio;
+DROP TABLE IF EXISTS envio CASCADE;
 
 CREATE TABLE public.envio (
                               id serial4 NOT NULL,

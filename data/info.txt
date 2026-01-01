@@ -1,0 +1,11 @@
+Si usas backup_lampreas_2025-12-31.json
+
+Da fallo en importación, tiene campos nulos en repartidor.
+
+- Usado para probar RollBack
+- Usado para testear mensajes de pantalla emergentes
+
+Si usas backup_lampreas_2026-01-01.json
+- Importacion correcta
+- Todos los campos escritos en Base de Datos
+

@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class JsonService {
 
@@ -128,9 +129,19 @@ public class JsonService {
                     envioDAO.insert(envio, con);
                 }
 
+                // Actualizar ID actual + 1, para los serial, autoincrement
+                try (Statement st = con.createStatement()) {
+                    st.execute("SELECT setval('empresa_reparto_id_seq', COALESCE((SELECT MAX(id) FROM empresa_reparto), 1))");
+                    st.execute("SELECT setval('repartidor_id_seq', COALESCE((SELECT MAX(id) FROM repartidor), 1))");
+                    st.execute("SELECT setval('envio_id_seq', COALESCE((SELECT MAX(id) FROM envio), 1))");
+
+                    // para todas las tablas con autoincremental
+                }
+
                 con.commit(); //si las todas fucionan se hacen
 
             }catch(SQLException e){
+                mostrarAlerta(e.getMessage(),"Fallo al guardar en base de datos");
                 con.rollback(); //si da fallo volvemos a punto anterior
                 throw e;
             }
