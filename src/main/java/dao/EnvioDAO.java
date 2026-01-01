@@ -52,6 +52,30 @@ public class EnvioDAO {
         }
     }
 
+    public void insert(Envio e, Connection con) throws SQLException {
+        try (PreparedStatement pst = con.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+
+            pst.setInt(1, e.getPedidoId());
+            pst.setInt(2, e.getRepartidorId());
+            pst.setDate(3, new java.sql.Date(e.getFechaSalida().getTime()));
+            pst.setString(4, e.getNumeroSeguimiento());
+            pst.setString(5, e.getEstado());
+
+            // GUARDAMOS LA COPIA DE SEGURIDAD (SNAPSHOT)
+            pst.setString(6, e.getNombreEmpresa());
+            pst.setString(7, e.getNombreRepartidor());
+            pst.setString(8, e.getTelefonoRepartidor());
+            pst.setString(9, e.getNombreCliente());
+            pst.setString(10, e.getDireccionCliente());
+
+            pst.executeUpdate();
+
+            try (ResultSet rs = pst.getGeneratedKeys()) {
+                if (rs.next()) e.setId(rs.getInt(1));
+            }
+        }
+    }
+
     // --- UPDATE (Solo permitimos cambiar estado o tracking, el historial no se toca) ---
     public void updateEstado(Envio e) throws SQLException {
         try (Connection con = Db.getConnection();

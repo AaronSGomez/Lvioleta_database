@@ -90,42 +90,42 @@ public class JsonService {
                 for (Cliente c : AlmacenData.getClientes()) {
                     // Podrías comprobar si existe para evitar error, pero lo dejamos simple:
                     // si existe, fallará por PK/unique -> perfecto para explicar integridad.
-                    clienteDAO.insert(c);
+                    clienteDAO.insert(c,con);
                 }
 
                 // 2) Detalles cliente (requieren cliente previo)
                 for (DetalleCliente d : AlmacenData.getDetallesCliente()) {
-                    detalleClienteDAO.insert(d);
+                    detalleClienteDAO.insert(d,con);
                 }
 
                 // 3) Productos
                 for (Producto p : AlmacenData.getProductos()) {
-                    productoDAO.insert(p);
+                    productoDAO.insert(p,con);
                 }
 
                 // 4) Pedidos (requieren cliente previo)
                 for (Pedido pe : AlmacenData.getPedidos()) {
-                    pedidoDAO.insert(pe);
+                    pedidoDAO.insert(pe, con);
                 }
 
                 // 5) Detalles pedido (requieren pedido y producto previos)
                 for (DetallePedido dp : AlmacenData.getDetallesPedido()) {
-                    detallePedidoDAO.insert(dp);
+                    detallePedidoDAO.insert(dp, con);
                 }
 
                 //6) Empresa Reparto
                 for (EmpresaReparto er : AlmacenData.getEmpresasReparto()){
-                    empresaRepartoDAO.insertID(er);
+                    empresaRepartoDAO.insertID(er, con);
                 }
 
                 // 7) Repartidor
                 for (Repartidor r : AlmacenData.getRepartidores()) {
-                    repartidorDAO.insertID(r);
+                    repartidorDAO.insertID(r, con);
                 }
 
                 // 8) Envio
                 for (Envio envio : AlmacenData.getEnvios()) {
-                    envioDAO.insert(envio);
+                    envioDAO.insert(envio, con);
                 }
 
                 con.commit(); //si las todas fucionan se hacen

@@ -4,6 +4,7 @@ import db.Db;
 import model.Pedido;
 import model.Producto;
 
+import java.net.ConnectException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;

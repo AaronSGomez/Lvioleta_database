@@ -54,6 +54,18 @@ public class DetallePedidoDAO {
         }
     }
 
+    public void insert(DetallePedido dp, Connection con) throws SQLException {
+        try (PreparedStatement pst = con.prepareStatement(INSERT_SQL)) {
+
+            pst.setInt(1, dp.getPedidoId());
+            pst.setInt(2, dp.getProductoId());
+            pst.setInt(3, dp.getCantidad());
+            pst.setDouble(4, dp.getPrecioUnit());
+
+            pst.executeUpdate();
+        }
+    }
+
     public List<DetallePedido> findAll() throws SQLException {
         List<DetallePedido> out = new ArrayList<>();
 

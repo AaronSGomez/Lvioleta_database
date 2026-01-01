@@ -63,9 +63,8 @@ public class EmpresaRepartoDAO {
         }
     }
 
-    public void insertID(EmpresaReparto r) throws SQLException {
-        try (Connection con = Db.getConnection();
-             PreparedStatement pst = con.prepareStatement(INSERT_ID_SQL);){
+    public void insertID(EmpresaReparto r, Connection con) throws SQLException {
+        try (PreparedStatement pst = con.prepareStatement(INSERT_ID_SQL);){
             pst.setInt(1,r.getId());
             pst.setString(2, r.getRazonSocial());
             pst.setString(3, r.getTelefono());

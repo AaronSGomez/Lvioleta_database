@@ -37,6 +37,15 @@ public class ProductoDAO {
         }
     }
 
+    public void insert(Producto producto, Connection con)throws SQLException {
+        try(PreparedStatement ps= con.prepareStatement(INSERT_SQL)){
+            ps.setInt(1, producto.getId());
+            ps.setString(2, producto.getNombre());
+            ps.setDouble(3, producto.getPrecio());
+            ps.executeUpdate();
+        }
+    }
+
     public Producto findById (int id)throws SQLException {
         try(Connection con = Db.getConnection(); PreparedStatement ps= con.prepareStatement(SELECT_BY_ID_SQL)){
             ps.setInt(1, id);

@@ -72,9 +72,8 @@ public class RepartidorDAO {
         }
     }
 
-    public void insertID(Repartidor r) throws SQLException {
-        try (Connection con = Db.getConnection();
-             PreparedStatement pst = con.prepareStatement(INSERT_ID_SQL)) {
+    public void insertID(Repartidor r, Connection con) throws SQLException {
+        try ( PreparedStatement pst = con.prepareStatement(INSERT_ID_SQL)) {
             pst.setInt(1, r.getId());
             pst.setString(2, r.getNombre());
             pst.setString(3, r.getTelefono());
