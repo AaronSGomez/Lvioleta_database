@@ -1,12 +1,14 @@
 package services;
 
 import dao.*;
+import db.Db;
 import javafx.scene.control.Alert;
 import model.*;
 
 import services.JsonIO;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class JsonService {
@@ -70,56 +72,75 @@ public class JsonService {
         RepartidorDAO repartidorDAO = new RepartidorDAO();
         EnvioDAO envioDAO = new EnvioDAO();
 
+        // hay que hacer rollback, para evitar fallos al cargar en la bd. Primera prueba falló por null en repartidor campo empresa_id
 
         if (AlmacenData.getAppData() == null) {
             mostrarAlerta("Error en importacion de Json","No existn datos en AlmacenData, no es posible realizar la importacion. ");
             return;
         }
 
+        try(Connection con = Db.getConnection();){
 
-        // 1) Clientes
-        for (Cliente c : AlmacenData.getClientes()) {
-            // Podrías comprobar si existe para evitar error, pero lo dejamos simple:
-            // si existe, fallará por PK/unique -> perfecto para explicar integridad.
-            clienteDAO.insert(c);
+            //solo esta permitido en bases que acepten control de transacciones
+            con.setAutoCommit(false);
+
+            try{
+
+                // 1) Clientes
+                for (Cliente c : AlmacenData.getClientes()) {
+                    // Podrías comprobar si existe para evitar error, pero lo dejamos simple:
+                    // si existe, fallará por PK/unique -> perfecto para explicar integridad.
+                    clienteDAO.insert(c);
+                }
+
+                // 2) Detalles cliente (requieren cliente previo)
+                for (DetalleCliente d : AlmacenData.getDetallesCliente()) {
+                    detalleClienteDAO.insert(d);
+                }
+
+                // 3) Productos
+                for (Producto p : AlmacenData.getProductos()) {
+                    productoDAO.insert(p);
+                }
+
+                // 4) Pedidos (requieren cliente previo)
+                for (Pedido pe : AlmacenData.getPedidos()) {
+                    pedidoDAO.insert(pe);
+                }
+
+                // 5) Detalles pedido (requieren pedido y producto previos)
+                for (DetallePedido dp : AlmacenData.getDetallesPedido()) {
+                    detallePedidoDAO.insert(dp);
+                }
+
+                //6) Empresa Reparto
+                for (EmpresaReparto er : AlmacenData.getEmpresasReparto()){
+                    empresaRepartoDAO.insertID(er);
+                }
+
+                // 7) Repartidor
+                for (Repartidor r : AlmacenData.getRepartidores()) {
+                    repartidorDAO.insertID(r);
+                }
+
+                // 8) Envio
+                for (Envio envio : AlmacenData.getEnvios()) {
+                    envioDAO.insert(envio);
+                }
+
+                con.commit(); //si las todas fucionan se hacen
+
+            }catch(SQLException e){
+                con.rollback(); //si da fallo volvemos a punto anterior
+                throw e;
+            }
+            finally {
+                mostrarInfo("Importación finalizada.", "Todos los campos añadidos a la base de datos. Restauración Completa");
+                con.setAutoCommit(true);
+            }
+
         }
 
-        // 2) Detalles cliente (requieren cliente previo)
-        for (DetalleCliente d : AlmacenData.getDetallesCliente()) {
-            detalleClienteDAO.insert(d);
-        }
-
-        // 3) Productos
-        for (Producto p : AlmacenData.getProductos()) {
-            productoDAO.insert(p);
-        }
-
-        // 4) Pedidos (requieren cliente previo)
-        for (Pedido pe : AlmacenData.getPedidos()) {
-            pedidoDAO.insert(pe);
-        }
-
-        // 5) Detalles pedido (requieren pedido y producto previos)
-        for (DetallePedido dp : AlmacenData.getDetallesPedido()) {
-            detallePedidoDAO.insert(dp);
-        }
-
-        //6) Empresa Reparto
-        for (EmpresaReparto er : AlmacenData.getEmpresasReparto()){
-            empresaRepartoDAO.insertID(er);
-        }
-
-        // 7) Repartidor
-        for (Repartidor r : AlmacenData.getRepartidores()) {
-            repartidorDAO.insertID(r);
-        }
-
-        // 8) Envio
-        for (Envio envio : AlmacenData.getEnvios()) {
-            envioDAO.insert(envio);
-        }
-
-        mostrarInfo("Importación finalizada.", "Todos los campos añadidos a la base de datos. Restauración Completa");
     }
 
     // --- UTILIDADES ---
