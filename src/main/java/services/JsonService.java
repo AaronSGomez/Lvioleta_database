@@ -75,6 +75,7 @@ public class JsonService {
             return;
         }
 
+
         // 1) Clientes
         for (Cliente c : AlmacenData.getClientes()) {
             // Podrías comprobar si existe para evitar error, pero lo dejamos simple:
@@ -101,6 +102,13 @@ public class JsonService {
         for (DetallePedido dp : AlmacenData.getDetallesPedido()) {
             detallePedidoDAO.insert(dp);
         }
+
+        //6) Empresa Reparto
+        for (EmpresaReparto er : AlmacenData.getEmpresasReparto()){
+            empresaRepartoDAO.insertID(er);
+        }
+
+        // 7) Repartidor
 
         System.out.println("Importación finalizada.");
     }

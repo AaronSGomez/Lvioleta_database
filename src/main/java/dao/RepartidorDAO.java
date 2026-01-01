@@ -16,6 +16,13 @@ public class RepartidorDAO {
             VALUES (?, ?, ?)
             """;
 
+    private static final String INSERT_ID_SQL =
+            """
+            INSERT INTO repartidor
+            (id, nombre, telefono, empresa_id)
+            VALUES (?, ?, ?, ?)
+            """;
+
     private static final String SELECT_ALL_SQL =
             """
             SELECT *
@@ -62,6 +69,18 @@ public class RepartidorDAO {
                     System.out.println("Repartidor insertado con ID: " + nuevoId);
                 }
             }
+        }
+    }
+
+    public void insertID(Repartidor r) throws SQLException {
+        try (Connection con = Db.getConnection();
+             PreparedStatement pst = con.prepareStatement(INSERT_ID_SQL)) {
+            pst.setInt(1, r.getId());
+            pst.setString(2, r.getNombre());
+            pst.setString(3, r.getTelefono());
+            pst.setInt(4, r.getEmpresaId());
+
+            pst.executeUpdate();
         }
     }
 

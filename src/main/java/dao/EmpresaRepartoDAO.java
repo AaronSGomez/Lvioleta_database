@@ -16,6 +16,13 @@ public class EmpresaRepartoDAO {
             VALUES (?, ?, ?)
             """;
 
+    private static final String INSERT_ID_SQL =
+            """
+            INSERT INTO empresa_reparto
+            (id, nombre, telefono, direccion)
+            VALUES (?, ?, ?, ?)
+            """;
+
     private static final String SELECT_ALL_SQL =
             """
             SELECT *
@@ -53,6 +60,18 @@ public class EmpresaRepartoDAO {
                     r.setId(nuevoId);  // ¡Actualizamos el objeto Java!
                 }
             }
+        }
+    }
+
+    public void insertID(EmpresaReparto r) throws SQLException {
+        try (Connection con = Db.getConnection();
+             PreparedStatement pst = con.prepareStatement(INSERT_ID_SQL);){
+            pst.setInt(1,r.getId());
+            pst.setString(2, r.getRazonSocial());
+            pst.setString(3, r.getTelefono());
+            pst.setString(4,r.getDireccion());
+
+            pst.executeUpdate();
         }
     }
 
