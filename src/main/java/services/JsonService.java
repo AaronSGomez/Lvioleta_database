@@ -1,6 +1,7 @@
 package services;
 
 import dao.*;
+import javafx.scene.control.Alert;
 import model.*;
 
 import services.JsonIO;
@@ -58,7 +59,7 @@ public class JsonService {
      * - No borra lo existente (si ya hay IDs repetidos, fallará por PK).
      * - En clase podéis añadir luego una opción "vaciar tablas" o "upsert".
      */
-    private static void GuardarBDJson() throws IOException, SQLException {
+    public static void guardarEnBDJson() throws SQLException {
 
         ClienteDAO clienteDAO = new ClienteDAO();
         ProductoDAO productoDAO = new ProductoDAO();
@@ -71,7 +72,7 @@ public class JsonService {
 
 
         if (AlmacenData.getAppData() == null) {
-            System.out.println("No existn datos ");
+            mostrarAlerta("Error en importacion de Json","No existn datos en AlmacenData, no es posible realizar la importacion. ");
             return;
         }
 
@@ -118,7 +119,25 @@ public class JsonService {
             envioDAO.insert(envio);
         }
 
-        System.out.println("Importación finalizada.");
+        mostrarInfo("Importación finalizada.", "Todos los campos añadidos a la base de datos. Restauración Completa");
     }
+
+    // --- UTILIDADES ---
+    private static void mostrarInfo(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText(titulo);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+
+    private static void mostrarAlerta(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Aviso");
+        alert.setHeaderText(titulo);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+
 
 }

@@ -185,9 +185,12 @@ public class LampreasVioletaApp extends Application {
            /*
            aqui llamo JsonService para importar todo a la base de datos directamente con el metodo
            insertJson cogiendo los datos cargados en AlmacenData
-
-           TODO: DEJAR LISTOS LOS REFRESH, Cambiar metodo de consulta detalles pedido y repartidores
            */
+            try {
+                JsonService.guardarEnBDJson();
+            } catch (SQLException e) {
+                mostrarError("Error al guardar en la base de datos",e);
+            }
         }
     }
 
