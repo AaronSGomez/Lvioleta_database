@@ -109,6 +109,14 @@ public class JsonService {
         }
 
         // 7) Repartidor
+        for (Repartidor r : AlmacenData.getRepartidores()) {
+            repartidorDAO.insertID(r);
+        }
+
+        // 8) Envio
+        for (Envio envio : AlmacenData.getEnvios()) {
+            envioDAO.insert(envio);
+        }
 
         System.out.println("Importación finalizada.");
     }
