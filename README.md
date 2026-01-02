@@ -90,7 +90,7 @@ Para evitar problemas con la carga de módulos JavaFX, ejecuta siempre desde la 
 ---
 
 ## 📂 Estructura del Proyecto
-
+```
 > src/main/java
 > ├── app/             # Launcher y Main App
 > ├── dao/             # Data Access Objects (SQL)
@@ -98,7 +98,7 @@ Para evitar problemas con la carga de módulos JavaFX, ejecuta siempre desde la 
 > ├── model/           # POJOs (Cliente, Envio, etc.)
 > ├── services/        # Lógica de Negocio (AlmacenData, JsonService)
 > └── view/            # Vistas JavaFX (AdminLogisticaView, EnvioDialog...)
-
+```
 ---
 
 ## 🤝 Contribución
