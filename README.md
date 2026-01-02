@@ -34,6 +34,8 @@ Sistema avanzado de Importación/Exportación transaccional (ACID):
     1. **Carga en Memoria:** Previsualización de datos en la interfaz sin tocar la base de datos.
     2. **Restauración Transaccional:** Al confirmar, se realiza un *wipe* completo de la BD, se reinsertan los datos y se sincronizan las secuencias (`SERIAL`). Si ocurre un error, se ejecuta un **ROLLBACK** automático.
 
+### 📚 Ayuda Integrada
+* Documentación HTML renderizada directamente dentro de la aplicación mediante `WebView`, accesible desde el menú superior.
 ---
 
 ## 🛠️ Stack Tecnológico
@@ -80,13 +82,13 @@ Para evitar problemas con la carga de módulos JavaFX, ejecuta siempre desde la 
 
 ## 📸 Capturas de Pantalla
 
-| Gestión de Clientes | Gestión de Productos |
-|:---:|:---:|
+| Gestión de Clientes |                Gestión de Productos                |
+|:---:|:--------------------------------------------------:|
 | ![Clientes](src/main/resources/img/clientes.png) | ![Productos](src/main/resources/img/productos.png) |
-| **Gestión de Pedidos** | **Gestión de Logística** |
-| ![Pedidos](src/main/resources/img/pedidos.png) | ![Reparto](src/main/resources/img/reparto.png) |
-| **Gestión de Envíos** | |
-| ![Envíos](src/main/resources/img/envios.png) | |
+| **Gestión de Pedidos** |              **Gestión de Logística**              |
+| ![Pedidos](src/main/resources/img/pedidos.png) |   ![Reparto](src/main/resources/img/reparto.png)   |
+| **Gestión de Envíos** |                     **Ayuda**                      |
+| ![Envíos](src/main/resources/img/envios.png) |     ![Ayuda](src/main/resources/img/ayuda.png)     |
 ---
 
 ## 📂 Estructura del Proyecto
