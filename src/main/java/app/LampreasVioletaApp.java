@@ -218,19 +218,17 @@ public class LampreasVioletaApp extends Application {
         alert.showAndWait();
     }
 
-
     private void accionAyuda() {
         Stage helpStage = new Stage();
         helpStage.setTitle("Ayuda y Documentación");
         helpStage.initOwner(primaryStage);
         helpStage.initModality(Modality.WINDOW_MODAL);
 
-        // 1. Crear el navegador integrado
+        // Crear el navegador integrado
         WebView webView = new WebView();
         WebEngine engine = webView.getEngine();
 
-        // 2. Cargar el archivo desde Resources
-        // El path debe empezar con / para buscar en la raíz de resources
+        // Cargar el archivo desde Resources
         java.net.URL url = getClass().getResource("/help/ayuda.html");
 
         if (url != null) {
@@ -240,7 +238,7 @@ public class LampreasVioletaApp extends Application {
             engine.loadContent("<html><body><h1>Error 404</h1><p>No se encontró el archivo ayuda.html</p></body></html>");
         }
 
-        // 3. Montar la escena
+        //  Montar la escena para la ayuda
         Scene scene = new Scene(webView, 700, 600);
         helpStage.setScene(scene);
         helpStage.show();
