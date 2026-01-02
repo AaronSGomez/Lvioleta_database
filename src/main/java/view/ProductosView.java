@@ -4,6 +4,7 @@ import dao.ProductoDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -81,10 +82,23 @@ public class ProductosView {
         panelDerecho.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #ddd;");
 
         form.setHgap(10);form.setVgap(10);
+
+        ColumnConstraints colLabels = new ColumnConstraints();
+        colLabels.setMinWidth(80); // Ancho fijo para las etiquetas (para que queden alineadas)
+
+        ColumnConstraints colInputs = new ColumnConstraints();
+        colInputs.setHgrow(Priority.ALWAYS); // Que crezca siempre
+
+        form.getColumnConstraints().addAll(colLabels, colInputs);
+
         // ----- Cliente -----
         txtId.setPromptText("ID (entero)");
         txtNombre.setPromptText("Nombre");
         txtPrecio.setPromptText("Precio");
+
+        txtId.setMaxWidth(Double.MAX_VALUE);
+        txtNombre.setMaxWidth(Double.MAX_VALUE);
+        txtPrecio.setMaxWidth(Double.MAX_VALUE);
 
         form.add(new Label("ID:"), 0, 0);
         form.add(txtId, 1, 0);
@@ -94,13 +108,18 @@ public class ProductosView {
         form.add(txtPrecio, 1, 2);
 
         // Zona botones CRUD
-        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
-        botonesCrud.setPadding(new Insets(10, 0, 0, 0));
+        VBox botonesCrud = new VBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
 
-        // Zona de búsqueda
+        botonesCrud.getChildren().forEach(node -> ((Button)node).setMaxWidth(Double.MAX_VALUE));
+
+        // Búsqueda
+        txtBuscar.setPrefWidth(190);
         HBox zonaBusqueda = new HBox(10,
-                new Label("Buscar:"), txtBuscar, btnBuscar, btnLimpiarBusqueda);
-        zonaBusqueda.setPadding(new Insets(10, 0, 10, 0));
+                new Label("🔍 Buscar:"), txtBuscar, btnBuscar, btnLimpiarBusqueda);
+        btnBuscar.setPrefWidth(100);
+        btnLimpiarBusqueda.setPrefWidth(100);
+        zonaBusqueda.setAlignment(Pos.CENTER_LEFT);
+        zonaBusqueda.setPadding(new Insets(0, 0, 10, 0));
 
         panelDerecho.getChildren().addAll(
                 zonaBusqueda,

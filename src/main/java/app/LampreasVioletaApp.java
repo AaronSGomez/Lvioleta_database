@@ -95,10 +95,10 @@ public class LampreasVioletaApp extends Application {
         // --- ITEMS DEL MENÚ ---
         MenuItem itemExportar = new MenuItem("📤 Exportar Copia Seguridad (JSON)");
         MenuItem itemImportar = new MenuItem("📥 Importar Datos (Solo Memoria)");
-        MenuItem itemAyuda = new MenuItem("❓ Ayuda");
+        MenuItem itemAyuda = new MenuItem(" Ayuda ❓");
 
         // El botón peligroso: Inicialmente deshabilitado y rojo
-        itemRestaurarBD = new MenuItem("☢️ GUARDAR EN BD (Sobrescribir)");
+        itemRestaurarBD = new MenuItem("☢ GUARDAR EN BD (Sobrescribir)");
         itemRestaurarBD.setDisable(true);
         itemRestaurarBD.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
 

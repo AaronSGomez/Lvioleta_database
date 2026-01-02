@@ -61,7 +61,7 @@
     utilizando una base de datos PostgreSQL.
 </p>
 
-<h2>🛠️ Tecnologías Utilizadas</h2>
+<h2>🛠 Tecnologías Utilizadas</h2>
 <ul>
     <li><strong>Lenguaje:</strong> Java 17+ (OpenJDK)</li>
     <li><strong>Interfaz Gráfica:</strong> JavaFX (con FXML y CSS)</li>
@@ -76,13 +76,20 @@
 <p>Para que la aplicación funcione, es necesario ejecutar el script de inicialización SQL en tu servidor PostgreSQL.</p>
 <pre><code>-- Ejemplo de creación rápida
 CREATE DATABASE lampreas_db;
--- Ejecutar el script schema.sql proporcionado en el repositorio</code></pre>
+-- Ejecutar el script schema.sql proporcionado en el repositorio
+-- Localizado en el directorio ./resources
+</code></pre>
 
 <h3>2. Conexión</h3>
-<p>Asegúrate de configurar el archivo <code>db.properties</code> con tus credenciales locales:</p>
-<pre><code>db.url=jdbc:postgresql://localhost:5432/lampreas_db
-db.user=postgres
-db.password=tu_contraseña</code></pre>
+<p>Asegúrate de configurar el archivo <code>db.Db</code> con tus credenciales locales:</p>
+<pre><code>...System.getenv().getOrDefault("PG_HOST", "localhost");
+    ...System.getenv().getOrDefault("PG_PORT", "5432");
+    ...System.getenv().getOrDefault("PG_DB", "violeta_db");
+    ...System.getenv().getOrDefault("PG_USER", "violeta_user");
+    ...System.getenv().getOrDefault("PG_PASS", "violeta_1234");
+
+    O directamente en la direccion URL:
+    private static final String URL = "jdbc:postgresql://" + HOST + ":" + PORT + "/" + DB;</code></pre>
 
 <h2>📦 Módulos del Sistema</h2>
 
@@ -94,17 +101,36 @@ db.password=tu_contraseña</code></pre>
     <li><strong>Búsqueda:</strong> Filtra en tiempo real por ID, nombre o email.</li>
 </ul>
 
-<h3>🛒 Pedidos y Productos</h3>
-<p>Gestión del catálogo de productos y creación de órdenes de compra.</p>
+<h3>🛒 Productos</h3>
+<p>Gestión del catálogo de productos. </p>
+<ul>
+    <li>Control de precios unitarios históricos.</li>
+    <li><strong>Búsqueda:</strong> Filtra en tiempo real nombre de producto.</li>
+</ul>
+
+<h3>🛒 Pedidos </h3>
+<p>Creación de órdenes de compra.</p>
 <ul>
     <li>Control de precios unitarios históricos.</li>
     <li>Cálculo automático de importes totales.</li>
+    <li>Guardado de transaccion completa.</li>
+    <li>Manejo de fechas.</li>
+    <li>Gestión de envios, y bloqueo de edición de pedidos en envio.</li>
+    <li>Busqueda pendiente de implementación. </li>
 </ul>
 
-<h3>🚚 Envíos y Logística</h3>
-<p>Módulo avanzado para el seguimiento de paquetes.</p>
+<h3>🚚 Gestion de Repartos</h3>
+<p>Módulo avanzado para el control de empresas de reparto y repartidores</p>
 <ul>
-    <li>Asignación de repartidores y empresas de transporte.</li>
+    <li>Creación de repartidores y empresas de transporte.</li>
+    <li>Asignacion de telefonos y direcciones de las empresas. </li>
+    <li>Acceso a datos de repartidor, para el seguimiento de los envios. </li>
+</ul>
+
+<h3>🚚 Gestion de Envios</h3>
+<p>Módulo para la gestion de envios.</p>
+<ul>
+    <li>Consulta del estado de los envios.</li>
     <li>Estados del envío: <code>EN_PREPARACION</code>, <code>EN_REPARTO</code>, <code>ENTREGADO</code>.</li>
     <li>Las tablas se actualizan automáticamente al cambiar el estado.</li>
 </ul>
@@ -116,12 +142,13 @@ db.password=tu_contraseña</code></pre>
 </div>
 
 <h3>Exportar (Backup)</h3>
-<p>Guarda una "foto" completa de la base de datos actual en un archivo <code>.json</code>. Incluye clientes, pedidos, productos y envíos.</p>
+<p>Guarda una "foto" completa de la base de datos actual en un archivo <code>.json</code>. Incluye clientes, pedidos, productos, empresas de reparto, repartidores y envíos.</p>
 
 <h3>Importar (Restaurar)</h3>
 <ol>
     <li><strong>Carga en Memoria:</strong> Al seleccionar un archivo JSON, los datos se visualizan en las tablas pero <strong>NO</strong> se guardan en la BD todavía.</li>
     <li><strong>Revisión:</strong> Puedes verificar que los datos sean correctos.</li>
+    <li><strong>No es posible realizar busquedas en memoria</strong> .</li>
     <li><strong>Guardar en BD:</strong> Al pulsar "Guardar en BD", el sistema:
         <ul>
             <li>Borra los datos antiguos (Reset completo).</li>

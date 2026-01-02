@@ -154,17 +154,20 @@ public class AdminLogisticaView {
         Label lblTitEmp = new Label("GESTIÓN EMPRESA");
         lblTitEmp.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
-        GridPane gridEmp = new GridPane();
-        gridEmp.setHgap(10); gridEmp.setVgap(10);
+        GridPane formEmpresa = new GridPane();
+        formEmpresa.setHgap(10); formEmpresa.setVgap(10);
 
         txtEmId.setEditable(false); // ID no editable
         txtEmId.setPromptText("Auto");
 
-        gridEmp.add(new Label("ID:"), 0, 0);       gridEmp.add(txtEmId, 1, 0);
-        gridEmp.add(new Label("Razón S.:"), 0, 1); gridEmp.add(txtRazonS, 1, 1);
-        gridEmp.add(new Label("Teléfono:"), 0, 2); gridEmp.add(txtEmTelefono, 1, 2);
-        gridEmp.add(new Label("Dirección:"), 0, 3); gridEmp.add(txtDireccion, 1, 3);
+        formEmpresa.add(new Label("ID:"), 0, 0);       formEmpresa.add(txtEmId, 1, 0);
+        formEmpresa.add(new Label("Razón S.:"), 0, 1); formEmpresa.add(txtRazonS, 1, 1);
+        formEmpresa.add(new Label("Teléfono:"), 0, 2); formEmpresa.add(txtEmTelefono, 1, 2);
+        formEmpresa.add(new Label("Dirección:"), 0, 3); formEmpresa.add(txtDireccion, 1, 3);
 
+        btnNuevo.setPrefWidth(150);
+        btnGuardar.setPrefWidth(150);
+        btnBorrar.setPrefWidth(150);
         HBox boxBotonesEmp = new HBox(5, btnNuevo, btnGuardar, btnBorrar);
         // Hacemos que los botones se ajusten
         btnNuevo.setMaxWidth(Double.MAX_VALUE);
@@ -174,19 +177,33 @@ public class AdminLogisticaView {
         Label lblTitRep = new Label("GESTIÓN REPARTIDOR");
         lblTitRep.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
-        GridPane gridRep = new GridPane();
-        gridRep.setHgap(10); gridRep.setVgap(10);
+        GridPane formRepartidor = new GridPane();
+        formRepartidor.setHgap(10); formRepartidor.setVgap(10);
 
         txtReId.setEditable(false); txtReId.setPromptText("Auto");
         txtEmpresaId.setEditable(false); // No se edita manual, se coge de la selección de arriba
         txtEmpresaId.setStyle("-fx-background-color: #e0e0e0;");
 
-        gridRep.add(new Label("ID:"), 0, 0);        gridRep.add(txtReId, 1, 0);
-        gridRep.add(new Label("ID Emp:"), 0, 1);    gridRep.add(txtEmpresaId, 1, 1);
-        gridRep.add(new Label("Nombre:"), 0, 2);    gridRep.add(txtNombre, 1, 2);
-        gridRep.add(new Label("Teléfono:"), 0, 3);  gridRep.add(txtReTelefono, 1, 3);
+        formRepartidor.add(new Label("ID:"), 0, 0);        formRepartidor.add(txtReId, 1, 0);
+        formRepartidor.add(new Label("ID Emp:"), 0, 1);    formRepartidor.add(txtEmpresaId, 1, 1);
+        formRepartidor.add(new Label("Nombre:"), 0, 2);    formRepartidor.add(txtNombre, 1, 2);
+        formRepartidor.add(new Label("Teléfono:"), 0, 3);  formRepartidor.add(txtReTelefono, 1, 3);
 
+        // DEFINIMOS ANCHOS DE COLUMNAS FORM
+        ColumnConstraints colLabels = new ColumnConstraints();
+        colLabels.setMinWidth(80); // Ancho fijo para las etiquetas (para que queden alineadas)
+        ColumnConstraints colInputs = new ColumnConstraints();
+        colInputs.setHgrow(Priority.ALWAYS); // Que crezca siempre
+
+        //APLICAMOS 
+        formRepartidor.getColumnConstraints().addAll(colLabels, colInputs);
+        formEmpresa.getColumnConstraints().addAll(colLabels, colInputs);
+
+        btnNuevoR.setPrefWidth(150);
+        btnGuardarR.setPrefWidth(150);
+        btnBorrarR.setPrefWidth(150);
         HBox boxBotonesRep = new HBox(5, btnNuevoR, btnGuardarR, btnBorrarR);
+
 
         // --- BOTÓN RECARGAR GLOBAL ---
         btnRecargar.setMaxWidth(Double.MAX_VALUE);
@@ -195,9 +212,9 @@ public class AdminLogisticaView {
         panelDerecho.getChildren().addAll(
                 btnRecargar,
                 new Separator(),
-                lblTitEmp, gridEmp, boxBotonesEmp,
+                lblTitEmp, formEmpresa, boxBotonesEmp,
                 new Separator(),
-                lblTitRep, gridRep, boxBotonesRep
+                lblTitRep, formRepartidor, boxBotonesRep
         );
 
         root.setRight(panelDerecho);

@@ -8,13 +8,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.StringConverter;
 import model.DetallePedido;
 import model.Envio;
@@ -162,44 +159,83 @@ public class PedidosView {
         panelDerecho.setPadding(new Insets(10));
         panelDerecho.setPrefWidth(500);
 
+        // Botones Globales ocupsn todo el ancho
         VBox botonesGlobal = new VBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar, btnGestionarEnvio);
         botonesGlobal.getChildren().forEach(node -> ((Button)node).setMaxWidth(Double.MAX_VALUE));
 
-        VBox bloqueBusqueda = new VBox(5,
-                new Label("Búsqueda:"),
-                txtBuscar,
-                new HBox(5, btnBuscar, btnLimpiarBusqueda)
-        );
+        // Búsqueda
+        txtBuscar.setPrefWidth(190);
+        HBox zonaBusqueda = new HBox(10,
+                new Label("🔍 Buscar:"), txtBuscar, btnBuscar, btnLimpiarBusqueda);
+        btnBuscar.setPrefWidth(100);
+        btnLimpiarBusqueda.setPrefWidth(100);
+        zonaBusqueda.setAlignment(Pos.CENTER_LEFT);
+        zonaBusqueda.setPadding(new Insets(0, 0, 10, 0));
 
-        // Formulario pedidos
+
+        // ==========================================================
+        // DEFINICIÓN DE COLUMNAS
+        // ==========================================================
+        ColumnConstraints colLabels = new ColumnConstraints();
+        colLabels.setMinWidth(80); // Ancho fijo para las etiquetas (para que queden alineadas)
+
+        ColumnConstraints colInputs = new ColumnConstraints();
+        colInputs.setHgrow(Priority.ALWAYS); // Que crezca siempre
+
+        // ======================
+        // FORMULARIO PEDIDOS
+        // ======================
         GridPane formPedidos = new GridPane();
-        formPedidos.setHgap(10); formPedidos.setVgap(10);
+        formPedidos.setHgap(10);
+        formPedidos.setVgap(10);
+        // Aplicamos las restricciones de columna
+        formPedidos.getColumnConstraints().addAll(colLabels, colInputs);
 
         txtId.setPromptText("ID Auto/Manual");
         txtClienteId.setPromptText("ID Cliente");
+
+        // IMPORTANTE: Decirle a los campos que llenen la celda del Grid que ha crecido
+        txtId.setMaxWidth(Double.MAX_VALUE);
+        txtClienteId.setMaxWidth(Double.MAX_VALUE);
+        txtFecha.setMaxWidth(Double.MAX_VALUE);
 
         formPedidos.add(new Label("DATOS PEDIDO"), 0, 0, 2, 1);
         formPedidos.add(new Label("ID Pedido:"), 0, 1); formPedidos.add(txtId, 1, 1);
         formPedidos.add(new Label("Cliente ID:"), 0, 2); formPedidos.add(txtClienteId, 1, 2);
         formPedidos.add(new Label("Fecha:"), 0, 3); formPedidos.add(txtFecha, 1, 3);
 
-        // Formulario productos
+        // ======================
+        // FORMULARIO DETALLES
+        // ======================
         GridPane formDetalle = new GridPane();
-        formDetalle.setHgap(10); formDetalle.setVgap(10);
+        formDetalle.setHgap(10);
+        formDetalle.setVgap(10);
+        // Aplicamos las mismas restricciones para que queden idénticos visualmente
+        formDetalle.getColumnConstraints().addAll(colLabels, colInputs);
+
+        txtCantidad.setPromptText("Cant");
+        txtPrecioU.setPromptText("Precio/unidad");
+
+        // IMPORTANTE: Forzar ancho máximo también aquí
+        comboProducto.setMaxWidth(Double.MAX_VALUE);
+        txtCantidad.setMaxWidth(Double.MAX_VALUE);
+        txtPrecioU.setMaxWidth(Double.MAX_VALUE);
+
         formDetalle.add(new Label("AÑADIR PRODUCTO"), 0, 0, 2, 1);
         formDetalle.add(new Label("Producto:"), 0, 1); formDetalle.add(comboProducto, 1, 1);
         formDetalle.add(new Label("Cant:"), 0, 2); formDetalle.add(txtCantidad, 1, 2);
         formDetalle.add(new Label("Precio/u:"), 0, 3); formDetalle.add(txtPrecioU, 1, 3);
 
-        txtCantidad.setPromptText("Cant");
-        txtPrecioU.setPromptText("Precio/unidad");
-
+        // Botones pequeños de agregar/quitar detalle
         HBox botonesDetalle = new HBox(10, btnAgregarDetalle, btnQuitarDetalle);
+        btnAgregarDetalle.setPrefWidth(120);
+        btnQuitarDetalle.setPrefWidth(120);
+        botonesDetalle.setAlignment(Pos.CENTER_RIGHT); // Queda mejor alineado a la derecha
         formDetalle.add(botonesDetalle, 0, 4, 2, 1);
 
         panelDerecho.getChildren().addAll(
                 botonesGlobal, new Separator(),
-                bloqueBusqueda, new Separator(),
+                zonaBusqueda, new Separator(),
                 formPedidos, new Separator(),
                 formDetalle
         );
@@ -316,7 +352,6 @@ public class PedidosView {
         }
     }
 
-    // --- EL MÉTODO QUE TE FALTABA ---
     private void setModoEdicion(boolean activo) {
         // Si activo es true -> Botones habilitados (false disable)
         // Si activo es false -> Botones deshabilitados (true disable)
