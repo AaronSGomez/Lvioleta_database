@@ -80,10 +80,13 @@ Para evitar problemas con la carga de módulos JavaFX, ejecuta siempre desde la 
 
 ## 📸 Capturas de Pantalla
 
-| Gestión de Clientes | Gestión de Productos | Gestión de Pedidos | Gestión de Logística | Gestión de Envíos | 
-|:---:|:---:||:---:||:---:||:---:|
-| ![Clientes](src/main/resources/img/clientes.png) | ![Envíos](src/main/resources/img/productos.png) | ![Envíos](src/main/resources/img/pedidos.png) | ![Envíos](src/main/resources/img/reparto.png) | ![Envíos](src/main/resources/img/envios.png) |
-
+| Gestión de Clientes | Gestión de Productos |
+|:---:|:---:|
+| ![Clientes](src/main/resources/img/clientes.png) | ![Productos](src/main/resources/img/productos.png) |
+| **Gestión de Pedidos** | **Gestión de Logística** |
+| ![Pedidos](src/main/resources/img/pedidos.png) | ![Reparto](src/main/resources/img/reparto.png) |
+| **Gestión de Envíos** | |
+| ![Envíos](src/main/resources/img/envios.png) | |
 ---
 
 ## 📂 Estructura del Proyecto
