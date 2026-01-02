@@ -163,6 +163,18 @@ CREATE DATABASE lampreas_db;
     <strong>Tip:</strong> Si la importación falla, el sistema hará un <em>Rollback</em> automático y tu base de datos quedará intacta.
 </div>
 
+<h3>Información adicional incluida en carpeta Data </h3>
+<p>La carpeta data, contiene dos copias de seguridad de datos en formato Json</p>
+<pre><code>Si usas backup_lampreas_2025-12-31.json
+Da fallo en importación, tiene campos nulos en repartidor.
+- Usado para probar RollBack
+- Usado para testear mensajes de pantalla emergentes
+
+Si usas backup_lampreas_2026-01-01.json
+- Importacion correcta
+- Todos los campos escritos en Base de Datos
+</code></pre>
+
 <h2>📞 Soporte</h2>
 <p>Desarrollado por el equipo de desarrollo de Lampreas Violeta.</p>
 <p><em>Versión 1.0.0 - 2025</em></p>
