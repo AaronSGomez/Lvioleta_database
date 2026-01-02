@@ -5,11 +5,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.AppData;
 import services.AlmacenData;
 import services.JsonService;
 import view.*;
+import javafx.scene.web.WebView;
+import javafx.scene.web.WebEngine;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -92,11 +95,13 @@ public class LampreasVioletaApp extends Application {
         // --- ITEMS DEL MENÚ ---
         MenuItem itemExportar = new MenuItem("📤 Exportar Copia Seguridad (JSON)");
         MenuItem itemImportar = new MenuItem("📥 Importar Datos (Solo Memoria)");
+        MenuItem itemAyuda = new MenuItem("❓ Ayuda");
 
         // El botón peligroso: Inicialmente deshabilitado y rojo
         itemRestaurarBD = new MenuItem("☢️ GUARDAR EN BD (Sobrescribir)");
         itemRestaurarBD.setDisable(true);
         itemRestaurarBD.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+
 
         MenuItem itemSalir = new MenuItem("Salir");
 
@@ -104,10 +109,12 @@ public class LampreasVioletaApp extends Application {
         itemExportar.setOnAction(e -> accionExportar());
         itemImportar.setOnAction(e -> accionImportar());
         itemRestaurarBD.setOnAction(e -> accionRestaurarBD());
+        itemAyuda.setOnAction(e -> accionAyuda());
         itemSalir.setOnAction(e -> System.exit(0));
 
         // Armamos el menú
         menuArchivo.getItems().addAll(itemExportar, itemImportar, new SeparatorMenuItem(), itemRestaurarBD, new SeparatorMenuItem(), itemSalir);
+        menuAyuda.getItems().addAll(itemAyuda);
         menuBar.getMenus().addAll(menuArchivo, menuAyuda);
 
         // Colocamos el menú en la parte SUPERIOR del BorderPane
@@ -209,6 +216,34 @@ public class LampreasVioletaApp extends Application {
         alert.setHeaderText(titulo);
         alert.setContentText(e.getMessage());
         alert.showAndWait();
+    }
+
+
+    private void accionAyuda() {
+        Stage helpStage = new Stage();
+        helpStage.setTitle("Ayuda y Documentación");
+        helpStage.initOwner(primaryStage);
+        helpStage.initModality(Modality.WINDOW_MODAL);
+
+        // 1. Crear el navegador integrado
+        WebView webView = new WebView();
+        WebEngine engine = webView.getEngine();
+
+        // 2. Cargar el archivo desde Resources
+        // El path debe empezar con / para buscar en la raíz de resources
+        java.net.URL url = getClass().getResource("/help/ayuda.html");
+
+        if (url != null) {
+            engine.load(url.toExternalForm());
+        } else {
+            // Fallback por si se te olvida crear el archivo
+            engine.loadContent("<html><body><h1>Error 404</h1><p>No se encontró el archivo ayuda.html</p></body></html>");
+        }
+
+        // 3. Montar la escena
+        Scene scene = new Scene(webView, 700, 600);
+        helpStage.setScene(scene);
+        helpStage.show();
     }
 
     public static void main(String[] args) {
